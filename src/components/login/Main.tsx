@@ -1,4 +1,5 @@
 import { Box, Container, Paper, Typography } from "@mui/material";
+import LoginForm from "./LoginForm";
 
 export default function Main() {
 
@@ -10,6 +11,9 @@ export default function Main() {
                         <Typography variant="h4">
                             Welcome
                         </Typography>
+                    </Box>
+                    <Box my={3} maxWidth={400} mx="auto">
+                        <LoginForm />                        
                     </Box>
                 </Box>
             </Paper>
