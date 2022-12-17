@@ -4,6 +4,8 @@ import * as yup from 'yup'
 import FormikPasswordField from "../formik/PasswordField";
 import FormikTextField from "../formik/TextField";
 import { BluePrimaryButton } from "../misc/buttons";
+import axios, { AxiosError } from 'axios'
+import Router from 'next/router'
 
 interface FormVals {
     email: string;
@@ -13,7 +15,23 @@ interface FormVals {
 export default function LoginForm() {
 
     const onSubmit = async (values:FormVals, actions:FormikHelpers<FormVals>) => {
+        try {
+            await axios({
+                method: 'POST',
+                url: '/api/login',
+                data: values
+            })
 
+            Router.push({
+                pathname: '/'
+            }) 
+        } catch (e) {
+            if ((e as AxiosError).response?.status === 409) {
+                actions.setFieldError((e as any).response?.data?.field,
+                    (e as any).response?.data?.msg)
+            }
+            actions.setSubmitting(false)
+        }
     }
 
     return (

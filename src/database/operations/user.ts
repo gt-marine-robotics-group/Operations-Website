@@ -19,3 +19,14 @@ export async function createUser(data:CreateUserData) {
         )
     ) as S_User
 }
+
+export async function getUserFromEmail(email:string) {
+
+    return await client.query(
+        q.If(
+            existsUserWithEmailInnerQuery(email),
+            q.Get(q.Match(q.Index('users_by_email'), email)),
+            null
+        )
+    ) as S_User
+}
