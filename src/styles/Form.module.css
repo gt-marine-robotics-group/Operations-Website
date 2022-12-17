@@ -1,0 +1,15 @@
+.input {}
+
+.input.error-input::after {
+    border-bottom-color: #FF2414 !important;
+}
+
+.text-field {}
+
+.text-field.error-label {
+    color: #FF2414 !important;
+}
+
+.helper-text.helper-text-error {
+    color: #FF2414  !important;
+}
