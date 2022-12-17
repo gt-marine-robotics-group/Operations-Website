@@ -20,7 +20,7 @@ export default function MyApp({ Component, pageProps,
 	return (
 		<CacheProvider value={emotionCache}>
 			<ThemeProvider theme={theme}>
-				<CssBaseline />
+				{/* <CssBaseline /> */}
 				<Component {...pageProps} />
 			</ThemeProvider>
 		</CacheProvider>
