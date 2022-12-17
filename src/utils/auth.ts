@@ -2,6 +2,8 @@ import { GetServerSidePropsContext } from "next";
 import { parseCookies } from 'nookies'
 import { Cookie_User } from "../database/interfaces/User";
 import jwt from 'jsonwebtoken'
+import axios from 'axios'
+import Router from 'next/router'
 
 function getDecoded(auth:string) {
     return new Promise<Cookie_User|null>(resolve => {
@@ -40,4 +42,18 @@ export async function getUser(ctx:GetServerSidePropsContext) {
     }
 
     return {user: token, redirect: null}
+}
+
+export async function logout() {
+    try {
+        await axios({
+            method: 'POST', 
+            url: '/api/logout'
+        })
+        Router.push({
+            pathname: '/login'
+        })
+    } catch (e) {
+        console.log(e)
+    }
 }
