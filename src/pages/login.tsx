@@ -1,5 +1,6 @@
 import Head from "next/head";
 import MainHeader from "../components/nav/MainHeader";
+import Main from '../components/login/Main'
 
 export default function Login() {
 
@@ -12,9 +13,7 @@ export default function Login() {
             </Head> 
             <div className="root-header-only">
                 <MainHeader />
-                <div>
-                    main
-                </div>
+                <Main />
             </div>
         </>
     )
