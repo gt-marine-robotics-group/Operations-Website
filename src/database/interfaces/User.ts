@@ -20,3 +20,7 @@ export interface C_User {
     ref: C_Ref;
     data: C_UserData;
 }
+
+export interface Cookie_User extends C_UserData {
+    id: string;
+}

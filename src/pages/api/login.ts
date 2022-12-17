@@ -34,7 +34,7 @@ export default async function Login(req:NextApiRequest, res:NextApiResponse) {
         }
 
         const token = jwt.sign(
-            {email, roles: user.data.roles},
+            {email, id: user.ref.id, roles: user.data.roles},
             process.env.JWT_TOKEN_SIGNATURE,
             {expiresIn: '48hr'}
         )
