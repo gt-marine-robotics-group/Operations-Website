@@ -44,6 +44,27 @@ export async function getUser(ctx:GetServerSidePropsContext) {
     return {user: token, redirect: null}
 }
 
+export async function getPartModifierUser(ctx:GetServerSidePropsContext) {
+
+    const {user, redirect} = await getUser(ctx)
+
+    if (redirect) {
+        return {user, redirect}
+    }
+
+    for(const role of user.roles) {
+        if (role === 'President' || role === 'Operations Officer' || 
+            role.includes('Technical Lead')) {
+            return {user, redirect: null}
+        }
+    }
+
+    return {user: null, redirect: {
+        props: {},
+        redirect: {destination: '/'}
+    }}
+}
+
 export async function logout() {
     try {
         await axios({
