@@ -3,20 +3,25 @@ import { useState } from "react";
 import { Formik, FormikHelpers, Form } from 'formik'
 import FormikTextField from "../../formik/TextField";
 import * as yup from 'yup'
+import { C_Category } from "../../../database/interfaces/Category";
+import { FormatAlignRight } from "@mui/icons-material";
+import CategorySelect from "./CategorySelect";
 
 class Props {
-    'initialVals': {
-        name: string,
-    };
-    categoryId?: string;
+    initialCategory?: C_Category;
 }
 
-export default function CategoryForm({initialVals, categoryId}:Props) {
+interface FormVals {
+    name: string;
+}
 
-    const [parentCategory, setParentCategory] = useState('')
+export default function CategoryForm({initialCategory}:Props) {
 
-    const onSubmit = async (values:Props['initialVals'], 
-        actions:FormikHelpers<Props['initialVals']>) => {
+    const [parentCategory, setParentCategory] = 
+        useState(initialCategory?.data.parent['@ref'].id || '')
+
+    const onSubmit = async (values:FormVals, 
+        actions:FormikHelpers<FormVals>) => {
         console.log('submitting')
     }
 
@@ -24,13 +29,19 @@ export default function CategoryForm({initialVals, categoryId}:Props) {
         <Box>
             <Formik validationSchema={yup.object({
                 name: yup.string().required('Please enter a name.')
-            })} initialValues={initialVals} 
+            })} initialValues={{name: initialCategory?.data.name || ''}} 
             onSubmit={(values, actions) => onSubmit(values, actions)}>
                 {({isSubmitting, isValidating}) => (
                     <Form>
                         <Box my={3}>
                             <FormGroup>
                                 <FormikTextField name="name" label="Name" />
+                            </FormGroup>
+                        </Box>
+                        <Box my={3}>
+                            <FormGroup>
+                                <CategorySelect setSelected={setParentCategory}
+                                    initialSelected={parentCategory} />
                             </FormGroup>
                         </Box>
                     </Form>

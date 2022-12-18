@@ -22,19 +22,21 @@ axios.defaults.withCredentials = true
 
 axios.interceptors.response.use(undefined, (err) => {
 	const {config, message} = err
-	if (config.method !== 'get' || config.method !== 'GET') {
+	if (config.method !== 'get' && config.method !== 'GET') {
+		console.log('not get!')
 		return Promise.reject(err)
 	}
 	if (!config || !config.retry) {
 		return Promise.reject(err)
 	}
-	if (!message.includes('timeout') && !message.includes('Network Error')) {
-		return Promise.reject(err)
-	}
+	// if (!message.includes('timeout') && !message.includes('Network Error')) {
+	// 	return Promise.reject(err)
+	// }
 	config.retry -= 1
-	const delayRetryRequest = new Promise((resolve) => {
+	const delayRetryRequest = new Promise<void>((resolve) => {
 		setTimeout(() => {
 			console.log(`retrying request to ${config.url}`)
+			resolve()
 		}, config.retryDelay || 1000)
 	})
 	return delayRetryRequest.then(() => axios(config))

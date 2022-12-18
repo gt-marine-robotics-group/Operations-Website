@@ -14,7 +14,7 @@ export default function Main() {
                             </Typography>
                         </Box>
                         <Box maxWidth={400} mx="auto">
-                            <CategoryForm initialVals={{name: ''}} />
+                            <CategoryForm />
                         </Box>
                     </Box>
                 </Paper>
