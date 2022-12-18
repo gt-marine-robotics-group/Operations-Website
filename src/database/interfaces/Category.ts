@@ -3,16 +3,15 @@ import { S_Ref, C_Ref} from './fauna'
 interface CategoryData {
     name: string;
     search: string[];
+    children: string; // comma separated ids
 }
 
 interface S_CategoryData extends CategoryData {
-    children: S_Ref[];
     parent: S_Ref;
     parts: S_Ref[];
 }
 
 interface C_CategoryData extends CategoryData {
-    children: C_Ref[];
     parent: C_Ref;
     parts: C_Ref[];
 }

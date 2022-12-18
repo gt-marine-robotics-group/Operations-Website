@@ -18,9 +18,10 @@ export default function CategorySelect({setSelected, initialSelected}:Props) {
                 const {data} = await axios.get('/api/inventory/category', {
                     params: {
                         parent: '/',
-                        initialSelected
+                        initialSelected,
+                        mode: 'categorySelect'
                     },
-                    retry: 3
+                    retry: 0
                 })
 
                 console.log(data)
