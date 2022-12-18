@@ -41,7 +41,8 @@ export default function CategoryForm({initialCategory}:Props) {
                         <Box my={3}>
                             <FormGroup>
                                 <CategorySelect setSelected={setParentCategory}
-                                    initialSelected={parentCategory} />
+                                    initialSelected={parentCategory} 
+                                    text="Parent Category" />
                             </FormGroup>
                         </Box>
                     </Form>
