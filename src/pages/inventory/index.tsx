@@ -3,8 +3,13 @@ import Head from "next/head";
 import MainHeader from "../../components/nav/MainHeader";
 import { getUser } from "../../utils/auth";
 import Main from '../../components/inventory/index/Main'
+import { Cookie_User } from "../../database/interfaces/User";
 
-export default function Inventory() {
+interface Props {
+    user: Cookie_User;
+}
+
+export default function Inventory({user}:Props) {
 
     return (
         <>
@@ -13,7 +18,7 @@ export default function Inventory() {
             </Head> 
             <div className="root-header-only">
                 <MainHeader loggedIn />
-                <Main />
+                <Main user={user} />
             </div>
         </>
     )
