@@ -2,6 +2,7 @@ import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import MainHeader from "../../../components/nav/MainHeader";
 import { getPartModifierUser } from "../../../utils/auth";
+import Main from '../../../components/inventory/category/add/Main'
 
 export default function AddCategory() {
     
@@ -14,7 +15,7 @@ export default function AddCategory() {
             </Head> 
             <div className="root-header-only">
                 <MainHeader loggedIn />
-                <div>main section</div>
+                <Main />
             </div>
         </>
     )
