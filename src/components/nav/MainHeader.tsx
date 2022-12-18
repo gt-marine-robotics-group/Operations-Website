@@ -9,7 +9,7 @@ interface Props {
 export default function MainHeader({loggedIn}:Props) {
 
     return (
-        <Box mb={3}>
+        <Box>
             <AppBar position="static" sx={{backgroundColor: "primary.light"}}>
                 <Toolbar>
                     <Grid item>
