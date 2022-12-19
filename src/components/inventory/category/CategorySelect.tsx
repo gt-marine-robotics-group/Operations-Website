@@ -10,7 +10,7 @@ interface Props {
     text: string;
 }
 
-interface CategoryMap {
+export interface CategoryMap {
     [id:string]: {
         name: string;
         children: string[];
@@ -67,7 +67,7 @@ export default function CategorySelect({setSelected, selected,
                         bankCopy['/'].children.push(info[0])
                         bankCopy[info[0]] = {
                             name: info[1],
-                            children: info[2].split(',')
+                            children: info[2] ? info[2].split(',') : []
                         }
                     } else if (!(bankCopy['/'].children.includes(info))) {
                         bankCopy[selected] = {
@@ -107,7 +107,7 @@ export default function CategorySelect({setSelected, selected,
                 </Grid>
             </Grid>
             <CategorySelectDialog setSelected={setSelected} open={openDialog}
-                setOpen={setOpenDialog} />
+                setOpen={setOpenDialog} bank={bank} setBank={setBank} />
         </Box>
     )
 }
