@@ -8,6 +8,7 @@ interface Props {
     setSelected: Dispatch<SetStateAction<string>>;
     selected: string;
     text: string;
+    updateCategoryMap?: (vals:CategoryMap) => void;
 }
 
 export interface CategoryMap {
@@ -24,7 +25,7 @@ const defaultBank:CategoryMap = {'/': {
 }}
 
 export default function CategorySelect({setSelected, selected, 
-    text}:Props) {
+    text, updateCategoryMap}:Props) {
 
     const [bank, setBank] = useState<CategoryMap>(defaultBank)
     const [loadingInitialData, setLoadingInitialData] = useState(true)
@@ -64,7 +65,10 @@ export default function CategorySelect({setSelected, selected,
                 })
                 console.log('data', data)
 
-                const bankCopy = defaultBank
+                const bankCopy:CategoryMap = {'/': {
+                    name: '',
+                    children: []
+                }}
                 for (const info of data) {
                     if (Array.isArray(info)) {
                         bankCopy['/'].children.push(info[0])
@@ -81,6 +85,9 @@ export default function CategorySelect({setSelected, selected,
                 }
                 setBank(bankCopy)
                 setLoadingInitialData(false)
+                if (updateCategoryMap) {
+                    updateCategoryMap(bankCopy)
+                }
             } catch (e) {
                 console.log(e)
                 setErrorLoadingInitialData(true)
@@ -114,7 +121,8 @@ export default function CategorySelect({setSelected, selected,
                 </Grid>
             </Grid>
             <CategorySelectDialog setSelected={setSelected} open={openDialog}
-                setOpen={setOpenDialog} bank={bank} setBank={setBank} />
+                setOpen={setOpenDialog} bank={bank} setBank={setBank}
+                updateCategoryMap={updateCategoryMap} />
         </Box>
     )
 }

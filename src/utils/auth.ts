@@ -52,6 +52,16 @@ export async function getUser(ctx:GetServerSidePropsContext) {
     return {user: token, redirect: null}
 }
 
+export function includesPartModifiableRole(roles:string[]) {
+    for (const role of roles) {
+        if (role === 'President' || role === 'Operations Officer' || 
+            role.includes('Technical Lead')) {
+            return true
+        }
+    }
+    return false
+}
+
 export async function getPartModifierUser(ctx:GetServerSidePropsContext) {
 
     const {user, redirect} = await getUser(ctx)
@@ -60,11 +70,8 @@ export async function getPartModifierUser(ctx:GetServerSidePropsContext) {
         return {user, redirect}
     }
 
-    for(const role of user.roles) {
-        if (role === 'President' || role === 'Operations Officer' || 
-            role.includes('Technical Lead')) {
-            return {user, redirect: null}
-        }
+    if (includesPartModifiableRole(user.roles)) {
+        return {user, redirect: null}
     }
 
     return {user: null, redirect: {

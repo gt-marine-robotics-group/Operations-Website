@@ -12,6 +12,7 @@ interface Props {
     setOpen: Dispatch<SetStateAction<boolean>>;
     bank: CategoryMap;
     setBank: Dispatch<SetStateAction<CategoryMap>>;
+    updateCategoryMap?: (vals:CategoryMap) => void;
 }
 
 interface DisplayProps {
@@ -20,9 +21,11 @@ interface DisplayProps {
     setSelected: Dispatch<SetStateAction<string>>;
     bank: Props['bank'];
     setBank: Props['setBank'];
+    updateCategoryMap?: (vals:CategoryMap) => void;
 }
 
-function CategoryDisplay({id, selected, setSelected, bank, setBank}:DisplayProps) {
+function CategoryDisplay({id, selected, setSelected, bank, setBank,
+    updateCategoryMap}:DisplayProps) {
 
     const [showChildren, setShowChildren] = useState(false)
     const [loadingChildren, setLoadingChildren] = useState(false)
@@ -65,6 +68,9 @@ function CategoryDisplay({id, selected, setSelected, bank, setBank}:DisplayProps
 
                 setLoadingChildren(false)
                 setBank(bankCopy)
+                if (updateCategoryMap) {
+                    updateCategoryMap(bankCopy)
+                }
             } catch (e) {
                 console.log(e)
                 setLoadingChildren(false)
@@ -111,7 +117,8 @@ function CategoryDisplay({id, selected, setSelected, bank, setBank}:DisplayProps
                         <Box key={i}>
                             <CategoryDisplay id={childId} bank={bank}
                                 setBank={setBank} selected={selected}
-                                setSelected={setSelected} />
+                                setSelected={setSelected}
+                                updateCategoryMap={updateCategoryMap} />
                         </Box>
                     ))}
             </Box>}
@@ -120,7 +127,7 @@ function CategoryDisplay({id, selected, setSelected, bank, setBank}:DisplayProps
 }
 
 export default function CategorySelectDialog({setSelected, 
-    open, setOpen, bank, setBank}:Props) {
+    open, setOpen, bank, setBank, updateCategoryMap}:Props) {
     
     const theme = useTheme()
     const fullScreenDialog = useMediaQuery(theme.breakpoints.down('lg'))
@@ -144,7 +151,8 @@ export default function CategorySelectDialog({setSelected,
                         <Box key={i}>
                             <CategoryDisplay id={id} bank={bank} setBank={setBank}
                                 setSelected={setDialogSelected} 
-                                selected={dialogSelected} /> 
+                                selected={dialogSelected}
+                                updateCategoryMap={updateCategoryMap} /> 
                         </Box>
                     ))}
                 </Box>

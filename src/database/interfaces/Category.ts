@@ -6,12 +6,12 @@ interface CategoryData {
     children: string; // comma separated ids
 }
 
-interface S_CategoryData extends CategoryData {
+export interface S_CategoryData extends CategoryData {
     parent: S_Ref;
     parts: S_Ref[];
 }
 
-interface C_CategoryData extends CategoryData {
+export interface C_CategoryData extends CategoryData {
     parent: C_Ref;
     parts: C_Ref[];
 }
