@@ -127,6 +127,11 @@ export default function CategorySelectDialog({setSelected,
 
     const [dialogSelected, setDialogSelected] = useState('')
 
+    const onSelectClick = () => {
+        setOpen(false)
+        setSelected(dialogSelected)
+    }
+
     return (
         <Dialog fullScreen={fullScreenDialog} open={open}
             onClose={() => setOpen(false)} maxWidth="lg">
@@ -148,7 +153,8 @@ export default function CategorySelectDialog({setSelected,
                 <BluePrimaryOutlinedButton onClick={() => setOpen(false)}>
                     Cancel
                 </BluePrimaryOutlinedButton>
-                <BluePrimaryButton disabled={!dialogSelected}>
+                <BluePrimaryButton disabled={!dialogSelected} 
+                    onClick={() => onSelectClick()}>
                     Select
                 </BluePrimaryButton>
             </DialogActions>

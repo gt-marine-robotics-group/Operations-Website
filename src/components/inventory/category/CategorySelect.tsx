@@ -18,13 +18,15 @@ export interface CategoryMap {
     }
 }
 
+const defaultBank:CategoryMap = {'/': {
+    name: '',
+    children: []
+}}
+
 export default function CategorySelect({setSelected, selected, 
     text}:Props) {
 
-    const [bank, setBank] = useState<CategoryMap>({'/': {
-        name: '',
-        children: []
-    }})
+    const [bank, setBank] = useState<CategoryMap>(defaultBank)
     const [loadingInitialData, setLoadingInitialData] = useState(true)
     const [errorLoadingInitialData, setErrorLoadingInitialData] = useState(false)
 
@@ -43,7 +45,7 @@ export default function CategorySelect({setSelected, selected,
             p.push(bank[c].name)
             c = bank[c].parent
         }
-        return p.reverse().join('/')
+        return p.reverse().join(' / ')
     }, [selected])
 
     console.log(bank)
@@ -62,7 +64,7 @@ export default function CategorySelect({setSelected, selected,
                 })
                 console.log('data', data)
 
-                const bankCopy = {...bank}
+                const bankCopy = defaultBank
                 for (const info of data) {
                     if (Array.isArray(info)) {
                         bankCopy['/'].children.push(info[0])
@@ -89,16 +91,20 @@ export default function CategorySelect({setSelected, selected,
 
     return (
         <Box>
-            <Grid container spacing={2} alignItems="center">
+            <Grid container spacing={0} alignItems="center">
                 <Grid item>
-                    <Typography variant="h6">
-                        {text}:
-                    </Typography>
+                    <Box mr={1}>
+                        <Typography variant="h6">
+                            {text}:
+                        </Typography>
+                    </Box>
                 </Grid>
                 <Grid item>
-                    <Typography variant="h6">
-                        {!errorLoadingInitialData ? path : 'Error Loading Categories'}
-                    </Typography>
+                    <Box mr={1}>
+                        <Typography variant="h6">
+                            {!errorLoadingInitialData ? path : 'Error Loading Categories'}
+                        </Typography>
+                    </Box>
                 </Grid>
                 <Grid item>
                     <BlueSecondaryButton disabled={loadingInitialData || errorLoadingInitialData}
