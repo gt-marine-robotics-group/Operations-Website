@@ -3,14 +3,15 @@ import {query as q, Expr} from 'faunadb'
 
 function getCategoryNamesAndChildrenFromParentInnerQuery(parentId:string) {
 
-    if (parentId === '/') {
-        return q.Paginate(
-            q.Match(q.Index('categories_by_parent_w_id_name_and_children'), parentId)
-        )
-    }
-
     return q.Paginate(
-        q.Match(q.Index('categories_by_parent_w_name_and_children'), parentId)
+        q.Match(q.Index('categories_by_parent_w_id_name_and_children'), parentId)
+    )
+}
+
+export async function getCategoryNamesFromParent(parentId:string) {
+
+    return await client.query(
+        q.Select('data', getCategoryNamesAndChildrenFromParentInnerQuery(parentId))
     )
 }
 

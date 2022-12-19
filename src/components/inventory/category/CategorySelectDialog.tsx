@@ -1,9 +1,10 @@
-import { Box, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { Dispatch, SetStateAction, useMemo, useState } from "react";
+import { Box, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { BluePrimaryButton, BluePrimaryIconButton, BluePrimaryOutlinedButton } from "../../misc/buttons";
 import { CategoryMap } from './CategorySelect'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import axios from 'axios'
 
 interface Props {
     setSelected: Dispatch<SetStateAction<string>>;
@@ -24,7 +25,54 @@ interface DisplayProps {
 function CategoryDisplay({id, selected, setSelected, bank, setBank}:DisplayProps) {
 
     const [showChildren, setShowChildren] = useState(false)
+    const [loadingChildren, setLoadingChildren] = useState(false)
     const [hovering, setHovering] = useState(false)
+
+    const color = useMemo(() => selected === id ? '#fff' : undefined, [selected])
+
+    useMemo(() => {
+        if (!showChildren) return
+
+        for (const childId of bank[id].children) {
+            if (!bank[childId]) {
+                setLoadingChildren(true)
+                return
+            }
+        }
+    }, [showChildren])
+
+    useEffect(() => {
+        if (!loadingChildren) return
+
+        const loadChildren = async () => {
+            try {
+                const {data} = await axios.get('/api/inventory/category', {
+                    params: {
+                        parent: id,
+                        mode: 'categorySelect'
+                    },
+                    retry: 3
+                })
+
+                const bankCopy = {...bank}
+                for (const info of data) {
+                    bankCopy[info[0]] = {
+                        name: info[1],
+                        children: info[2] ? info[2].split(',') : [],
+                        parent: id
+                    }
+                }
+
+                setLoadingChildren(false)
+                setBank(bankCopy)
+            } catch (e) {
+                console.log(e)
+                setLoadingChildren(false)
+                setShowChildren(false)
+            }
+        }
+        loadChildren()
+    }, [loadingChildren])
 
     const hasChildren = useMemo(() => (
         id !== '/' && bank[id].children.length > 0
@@ -33,27 +81,40 @@ function CategoryDisplay({id, selected, setSelected, bank, setBank}:DisplayProps
     return (
         <Box>
             <Box borderRadius={1}
-                sx={{bgcolor: !hovering ? undefined : "primary.light"}}>
+                sx={{bgcolor: selected === id ? "primary.main" : 
+                    !hovering ? undefined : "primary.light"}}>
                 <Grid container alignItems="center">
                     <Grid item>
                         <BluePrimaryIconButton 
                             onClick={() => setShowChildren(!showChildren)}
-                            disabled={!hasChildren} sx={{opacity: hasChildren ? 1 : 0}}>
-                            {showChildren ? <ArrowDropDownIcon /> : <ArrowRightIcon />}
+                            disabled={!hasChildren || loadingChildren}
+                            sx={{opacity: hasChildren ? 1 : 0}}>
+                            {showChildren ? <ArrowDropDownIcon
+                                sx={{color}} /> : 
+                                <ArrowRightIcon sx={{color}} />}
                         </BluePrimaryIconButton>
                     </Grid>
                     <Grid item flex={1} onMouseEnter={() => setHovering(true)} 
                         onMouseLeave={() => setHovering(false)}
+                        onClick={() => setSelected(id)}
                         sx={{cursor: "default"}}>
-                        <Typography variant="h6">
+                        <Typography variant="h6" 
+                            sx={{color}}>
                             {bank[id].name || 'None'}
                         </Typography>
                     </Grid>
                 </Grid>
             </Box>
-            <Box pl={5}>
-                future children
-            </Box>
+            {hasChildren && showChildren && <Box pl={5}>
+                {loadingChildren ? <CircularProgress /> : 
+                    bank[id].children.map((childId, i) => (
+                        <Box key={i}>
+                            <CategoryDisplay id={childId} bank={bank}
+                                setBank={setBank} selected={selected}
+                                setSelected={setSelected} />
+                        </Box>
+                    ))}
+            </Box>}
         </Box>
     )
 }

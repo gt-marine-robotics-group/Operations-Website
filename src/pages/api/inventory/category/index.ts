@@ -1,13 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getInitialCategoryNames } from "../../../../database/operations/category";
+import { getCategoryNamesFromParent, getInitialCategoryNames } from "../../../../database/operations/category";
 
 async function categorySelect(query:NextApiRequest['query']) {
 
     if ('initialSelected' in query) {
-        const data = await getInitialCategoryNames(query.initialSelected as string)
-        return data
+        return await getInitialCategoryNames(query.initialSelected as string)
     }
-    return null
+    return await getCategoryNamesFromParent(query.parent as string)
 }
 
 export default async function Category(req:NextApiRequest, res:NextApiResponse) {

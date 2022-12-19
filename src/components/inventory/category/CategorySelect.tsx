@@ -60,6 +60,7 @@ export default function CategorySelect({setSelected, selected,
                     },
                     retry: 3
                 })
+                console.log('data', data)
 
                 const bankCopy = {...bank}
                 for (const info of data) {
