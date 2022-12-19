@@ -9,6 +9,10 @@ export const BluePrimaryButton = styled(Button)(({theme}) => ({
     transition: 'background 300ms',
     '&:hover': {
         background: theme.palette.primary.dark
+    },
+    '&.Mui-disabled': {
+        color: theme.palette.text.secondary,
+        opacity: 0.6
     }
 }))
 
@@ -20,6 +24,23 @@ export const BlueSecondaryButton = styled(Button)(({theme}) => ({
     transition: 'background 300ms',
     '&:hover': {
         background: theme.palette.primary.dark
+    },
+    '&.Mui-disabled': {
+        color: theme.palette.text.secondary,
+        opacity: 0.6
+    }
+}))
+
+export const BluePrimaryOutlinedButton = styled(Button)(({theme}) => ({
+    background: 'transparent',
+    border: '2px solid #000',
+    borderRadius: theme.spacing(1),
+    padding: `${theme.spacing(2)} ${theme.spacing(3)}`,
+    transition: 'background color border 300ms',
+    '&:hover': {
+        color: '#fff',
+        background: theme.palette.primary.dark,
+        borderColor: theme.palette.primary.dark
     }
 }))
 

@@ -1,7 +1,8 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Box,Grid, Typography } from "@mui/material";
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import axios from 'axios'
 import { BlueSecondaryButton } from "../../misc/buttons";
+import CategorySelectDialog from './CategorySelectDialog'
 
 interface Props {
     setSelected: Dispatch<SetStateAction<string>>;
@@ -26,6 +27,8 @@ export default function CategorySelect({setSelected, selected,
     }})
     const [loadingInitialData, setLoadingInitialData] = useState(true)
     const [errorLoadingInitialData, setErrorLoadingInitialData] = useState(false)
+
+    const [openDialog, setOpenDialog] = useState(false)
 
     const path = useMemo(() => {
         if (!selected) {
@@ -97,11 +100,14 @@ export default function CategorySelect({setSelected, selected,
                     </Typography>
                 </Grid>
                 <Grid item>
-                    <BlueSecondaryButton disabled={loadingInitialData || errorLoadingInitialData}>
+                    <BlueSecondaryButton disabled={loadingInitialData || errorLoadingInitialData}
+                        onClick={() => setOpenDialog(true)}>
                         Change
                     </BlueSecondaryButton>
                 </Grid>
             </Grid>
+            <CategorySelectDialog setSelected={setSelected} open={openDialog}
+                setOpen={setOpenDialog} />
         </Box>
     )
 }
