@@ -27,8 +27,6 @@ export default function CategoryForm({initialCategory}:Props) {
     }})
 
     const updateCategoryMap = (vals:CategoryMap) => setCategoryBank(vals)
-
-    console.log('root bank: ', categoryBank)
     
     const [submitting, setSubmitting] = useState(false)
     const formRef = useRef<FormikProps<FormVals>>(null)
@@ -62,8 +60,6 @@ export default function CategoryForm({initialCategory}:Props) {
             setSubmitting(false)
         }
     }
-
-    console.log('parentCategory', parentCategory)
 
     return (
         <Box>

@@ -49,8 +49,6 @@ export default function CategorySelect({setSelected, selected,
         return p.reverse().join(' / ')
     }, [selected])
 
-    console.log(bank)
-
     useEffect(() => {
         const loadInitialData = async () => {
             try {
@@ -63,7 +61,6 @@ export default function CategorySelect({setSelected, selected,
                     },
                     retry: 3
                 })
-                console.log('data', data)
 
                 const bankCopy:CategoryMap = {'/': {
                     name: '',
