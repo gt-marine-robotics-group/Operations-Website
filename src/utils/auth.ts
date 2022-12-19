@@ -1,4 +1,4 @@
-import { GetServerSidePropsContext } from "next";
+import { GetServerSidePropsContext, NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { parseCookies } from 'nookies'
 import { Cookie_User } from "../database/interfaces/User";
 import jwt from 'jsonwebtoken'
@@ -21,6 +21,14 @@ async function getAuthToken(ctx:GetServerSidePropsContext) {
     if (!auth) return null
 
     return await getDecoded(auth) 
+}
+
+async function getAuthTokenFromApiHandler(req:NextApiRequest) {
+    const auth = req.cookies['user-auth']
+
+    if (!auth) return null
+
+    return await getDecoded(auth)
 }
 
 export async function mustNotBeAuthenticated(ctx:GetServerSidePropsContext) {
@@ -63,6 +71,27 @@ export async function getPartModifierUser(ctx:GetServerSidePropsContext) {
         props: {},
         redirect: {destination: '/'}
     }}
+}
+
+export function verifyUser(fn:NextApiHandler) {
+    return (req:NextApiRequest, res:NextApiResponse) => {
+        return new Promise<void>(resolve => {
+            getAuthTokenFromApiHandler(req).then(async (authToken) => {
+                if (!authToken) {
+                    res.status(403).json({msg: 'YOU CANNOT PASS'})
+                    return resolve()
+                }
+                if (req.method !== 'GET') {
+                    req.body.jwtUser = authToken
+                }
+                await fn(req, res)
+                return resolve()
+            }).catch(() => {
+                res.status(500).json({msg: 'Authentication processing error'})
+                return resolve()
+            })
+        })
+    }
 }
 
 export async function logout() {

@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getCategoryNamesFromParent, getInitialCategoryNames } from "../../../../database/operations/category";
+import { verifyUser } from "../../../../utils/auth";
 
 async function categorySelect(query:NextApiRequest['query']) {
 
@@ -9,7 +10,7 @@ async function categorySelect(query:NextApiRequest['query']) {
     return await getCategoryNamesFromParent(query.parent as string)
 }
 
-export default async function Category(req:NextApiRequest, res:NextApiResponse) {
+export default verifyUser(async function Category(req:NextApiRequest, res:NextApiResponse) {
 
     try {
 
@@ -25,4 +26,4 @@ export default async function Category(req:NextApiRequest, res:NextApiResponse) 
         console.log(e)
         return res.status(500).json({msg: 'Internal Server Error'})
     }
-}
+})
