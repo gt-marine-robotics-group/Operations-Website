@@ -5,7 +5,7 @@ import { BlueSecondaryButton } from "../../misc/buttons";
 
 interface Props {
     setSelected: Dispatch<SetStateAction<string>>;
-    initialSelected: string;
+    selected: string;
     text: string;
 }
 
@@ -17,32 +17,31 @@ interface CategoryMap {
     }
 }
 
-export default function CategorySelect({setSelected, initialSelected, 
+export default function CategorySelect({setSelected, selected, 
     text}:Props) {
 
     const [bank, setBank] = useState<CategoryMap>({'/': {
         name: '',
         children: []
     }})
-    const [curr, setCurr] = useState('')
     const [loadingInitialData, setLoadingInitialData] = useState(true)
     const [errorLoadingInitialData, setErrorLoadingInitialData] = useState(false)
 
     const path = useMemo(() => {
-        if (!curr) {
+        if (!selected) {
             return '/'
         }
-        if (curr === '/') {
+        if (selected === '/') {
             return 'None'
         }
         const p = []
-        let c:string|undefined = curr
+        let c:string|undefined = selected
         while (c) {
             p.push(bank[c].name)
             c = bank[c].parent
         }
         return p.reverse().join('/')
-    }, [curr])
+    }, [selected])
 
     console.log(bank)
 
@@ -53,7 +52,7 @@ export default function CategorySelect({setSelected, initialSelected,
                 const {data} = await axios.get('/api/inventory/category', {
                     params: {
                         parent: '/',
-                        initialSelected,
+                        initialSelected: selected || '/',
                         mode: 'categorySelect'
                     },
                     retry: 3
@@ -68,13 +67,12 @@ export default function CategorySelect({setSelected, initialSelected,
                             children: info[2].split(',')
                         }
                     } else if (!(bankCopy['/'].children.includes(info))) {
-                        bankCopy[initialSelected] = {
+                        bankCopy[selected] = {
                             name: info,
                             children: []
                         }
                     }
                 }
-                setCurr(initialSelected || '/')
                 setBank(bankCopy)
                 setLoadingInitialData(false)
             } catch (e) {
@@ -95,7 +93,7 @@ export default function CategorySelect({setSelected, initialSelected,
                 </Grid>
                 <Grid item>
                     <Typography variant="h6">
-                        {path}
+                        {!errorLoadingInitialData ? path : 'Error Loading Categories'}
                     </Typography>
                 </Grid>
                 <Grid item>
