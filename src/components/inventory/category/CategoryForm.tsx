@@ -18,12 +18,14 @@ interface FormVals {
 export default function CategoryForm({initialCategory}:Props) {
 
     const [parentCategory, setParentCategory] = 
-        useState(initialCategory?.data.parent['@ref'].id || '')
+        useState(initialCategory?.data.parent['@ref'].id || '/')
 
     const onSubmit = async (values:FormVals, 
         actions:FormikHelpers<FormVals>) => {
         console.log('submitting')
     }
+
+    console.log('parentCategory', parentCategory)
 
     return (
         <Box>

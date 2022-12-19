@@ -13,7 +13,6 @@ export default async function Category(req:NextApiRequest, res:NextApiResponse) 
 
     try {
 
-        console.log(req.query)
         const {mode} = req.query
 
         if (mode === 'categorySelect') {
