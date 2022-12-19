@@ -35,19 +35,23 @@ export default function CategoryForm({initialCategory}:Props) {
         actions:FormikHelpers<FormVals>) => {
         setSubmitting(true)
         try {
-            await axios({
-                method: 'POST',
-                url: '/api/inventory/category/create',
-                data: {data: {
-                    name: values.name,
-                    parent: parentCategory,
-                    children: [],
-                    parts: [],
-                    search: values.name.split(' ').filter(v => v).map(v => v.toLowerCase()),
-                }, 
-                parentChildren: categoryBank[parentCategory].children
+            if (!initialCategory) {
+                await axios({
+                    method: 'POST',
+                    url: '/api/inventory/category/create',
+                    data: {data: {
+                        name: values.name,
+                        parent: parentCategory,
+                        children: [],
+                        parts: [],
+                        search: values.name.split(' ').filter(v => v).map(v => v.toLowerCase()),
+                    }, 
+                    parentChildren: categoryBank[parentCategory].children
+                }
+                })
+            } else {
+                // update the category
             }
-            })
 
             Router.push({
                 pathname: '/inventory',
