@@ -1,4 +1,4 @@
-import { Box, FormGroup, Grid } from "@mui/material";
+import { Alert, Box, FormGroup, Grid } from "@mui/material";
 import { useRef, useState } from "react";
 import { Formik, FormikHelpers, Form, FormikProps } from 'formik'
 import FormikTextField from "../../formik/TextField";
@@ -23,8 +23,8 @@ export default function CategoryForm({initialCategory}:Props) {
     const [parentCategory, setParentCategory] = 
         useState<string>(!initialCategory ? '/' : 
             typeof(initialCategory.data.parent) === 'string' ? 
-            initialCategory.data.parent as string : 
-            (initialCategory.data.parent as C_Ref)['@ref'].id as any)
+            initialCategory.data.parent : 
+            initialCategory.data.parent['@ref'].id)
     const [categoryBank, setCategoryBank] = useState<CategoryMap>({'/': {
         name: '',
         children: []
@@ -34,6 +34,8 @@ export default function CategoryForm({initialCategory}:Props) {
     
     const [submitting, setSubmitting] = useState(false)
     const formRef = useRef<FormikProps<FormVals>>(null)
+
+    const [alertErrorMsg, setAlertErrorMsg] = useState('')
 
     const onSubmit = async (values:FormVals, 
         actions:FormikHelpers<FormVals>) => {
@@ -84,11 +86,25 @@ export default function CategoryForm({initialCategory}:Props) {
     }
 
     const deleteCategory = async () => {
-
+        if (!initialCategory) return
+        if (initialCategory.data.children.length > 0) {
+            setAlertErrorMsg('Cannot delete: contains child categories')
+            return
+        }
+        if (initialCategory.data.parts.length > 0) {
+            setAlertErrorMsg('Cannot delete: contains parts')
+            return
+        }
+        // delete it!
     }
 
     return (
         <Box>
+            {alertErrorMsg && 
+                <Alert severity="error" onClose={() => setAlertErrorMsg('')}>
+                    {alertErrorMsg}
+                </Alert>
+            }
             <Formik innerRef={formRef} validationSchema={yup.object({
                 name: yup.string().required('Please enter a name.')
             })} initialValues={{name: initialCategory?.data.name || ''}} 

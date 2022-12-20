@@ -179,6 +179,16 @@ export async function updateCategoryInfo(id:string, data:UpdateCategoryInfoData,
 
 }
 
+export async function deleteCategory(id:string, 
+    parentCategoryId:string) {
+
+    return
+
+    return await client.query(
+        q.Delete(q.Ref(q.Collection('categories'), id))
+    )
+}
+
 export async function getCategory(id:string) {
     
     return await client.query(
