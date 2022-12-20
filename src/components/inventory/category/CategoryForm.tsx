@@ -1,4 +1,4 @@
-import { Box, FormGroup } from "@mui/material";
+import { Box, FormGroup, Grid } from "@mui/material";
 import { useRef, useState } from "react";
 import { Formik, FormikHelpers, Form, FormikProps } from 'formik'
 import FormikTextField from "../../formik/TextField";
@@ -7,7 +7,7 @@ import { C_Category } from "../../../database/interfaces/Category";
 import CategorySelect, { CategoryMap } from "./CategorySelect";
 import axios from 'axios'
 import Router from 'next/router'
-import { BluePrimaryButton } from "../../misc/buttons";
+import { BluePrimaryButton, BluePrimaryOutlinedButton, BlueSecondaryButton } from "../../misc/buttons";
 import { C_Ref } from "../../../database/interfaces/fauna";
 
 class Props {
@@ -83,6 +83,10 @@ export default function CategoryForm({initialCategory}:Props) {
         }
     }
 
+    const deleteCategory = async () => {
+
+    }
+
     return (
         <Box>
             <Formik innerRef={formRef} validationSchema={yup.object({
@@ -108,11 +112,25 @@ export default function CategoryForm({initialCategory}:Props) {
                         text="Parent Category" />
                 </FormGroup>
             </Box>
-            <Box my={3} maxWidth={200} mx="auto">
-                <BluePrimaryButton fullWidth onClick={() => formRef.current?.submitForm()}
-                    disabled={submitting}>
-                    Submit
-                </BluePrimaryButton>
+            <Box mt={5}>
+                <Grid container spacing={3} justifyContent="center">
+                    <Grid item>
+                        <Box width={150}>
+                            <BluePrimaryButton fullWidth onClick={() => formRef.current?.submitForm()}
+                                disabled={submitting}>
+                                {initialCategory ? 'Update' : 'Create'}
+                            </BluePrimaryButton>
+                        </Box>
+                    </Grid>
+                    {initialCategory && <Grid item>
+                        <Box width={150} >
+                            <BluePrimaryOutlinedButton fullWidth 
+                                onClick={() => deleteCategory()}>
+                                Delete
+                            </BluePrimaryOutlinedButton>
+                        </Box>
+                    </Grid>}
+                </Grid>
             </Box>
         </Box>
     )
