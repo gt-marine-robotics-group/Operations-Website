@@ -96,6 +96,7 @@ interface UpdateCategoryInfoData {
 export async function updateCategoryInfo(id:string, data:UpdateCategoryInfoData, 
     parentChildren:string[], prevParentId:string) {
 
+    const originalParentId = data.parent
     if (data.parent !== '/') {
         data.parent = q.Ref(q.Collection('categories'), data.parent)
     }
@@ -103,7 +104,7 @@ export async function updateCategoryInfo(id:string, data:UpdateCategoryInfoData,
     await client.query(
         q.Do(
             q.If(
-                prevParentId === data.parent,
+                prevParentId === originalParentId,
                 null,
                 q.Do(
                     q.If(
