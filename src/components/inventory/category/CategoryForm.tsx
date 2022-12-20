@@ -95,7 +95,28 @@ export default function CategoryForm({initialCategory}:Props) {
             setAlertErrorMsg('Cannot delete: contains parts')
             return
         }
-        // delete it!
+        setSubmitting(true)
+        try {
+            await axios({
+                method: 'POST',
+                url: `/api/inventory/category/${initialCategory.ref['@ref'].id}/delete`,
+                data: {
+                    parentCategoryId: typeof(initialCategory.data.parent) === 'string' ?
+                        initialCategory.data.parent : 
+                        initialCategory.data.parent['@ref'].id
+                }
+            })
+
+            Router.push({
+                pathname: '/inventory',
+                query: {
+                    categoryChange: 'delete'
+                }
+            })
+        } catch (e) {
+            console.log(e)
+            setSubmitting(false)
+        }
     }
 
     return (
@@ -140,7 +161,7 @@ export default function CategoryForm({initialCategory}:Props) {
                     </Grid>
                     {initialCategory && <Grid item>
                         <Box width={150} >
-                            <BluePrimaryOutlinedButton fullWidth 
+                            <BluePrimaryOutlinedButton fullWidth disabled={submitting}
                                 onClick={() => deleteCategory()}>
                                 Delete
                             </BluePrimaryOutlinedButton>

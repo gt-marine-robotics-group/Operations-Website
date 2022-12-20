@@ -11,7 +11,7 @@ export default verifyUser(async function DeleteCategory(req:NextApiRequest, res:
     try {
 
         await deleteCategory(req.query.id as string, 
-            req.query.parentCategoryId as string)
+            req.body.parentCategoryId as string)
 
         return res.status(200).json({msg: 'Deletion successful'})
     } catch (e) {

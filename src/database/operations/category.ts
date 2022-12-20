@@ -25,6 +25,65 @@ function addChildInnerQuery(id:Expr, children:string[], newChild:Expr|string) {
     )
 }
 
+function removeChildInnerQuery(id:string, childId:string) {
+    return q.If(
+        id !== '/',
+        q.Let(
+            {
+                children: q.Select(['data', 0],
+                    q.Paginate(q.Match(
+                        q.Index('categories_by_id_w_children'),
+                        id)
+                    )
+                )
+            },
+            q.Let(
+                {
+                    idRemovedChildren: q.ReplaceStr(
+                        q.ReplaceStr(
+                            q.Var('children'),
+                            childId,
+                            ''
+                        ),
+                        ',,',
+                        ','
+                    )
+                },
+                q.Let(
+                    {
+                        finalChildren: q.If(
+                            q.StartsWith(q.Var('idRemovedChildren'), ','),
+                            q.SubString(
+                                q.Var('idRemovedChildren'),
+                                1,
+                            ),
+                            q.If(
+                                q.EndsWith(q.Var('idRemovedChildren'), ','),
+                                q.SubString(
+                                    q.Var('idRemovedChildren'),
+                                    0,
+                                    q.Subtract(
+                                        q.Length(q.Var('idRemovedChildren')),
+                                        1
+                                    )
+                                ),
+                                q.Var('idRemovedChildren')
+                            )
+                        )
+                    },
+                    q.Update(
+                        q.Ref(q.Collection('categories'), id),
+                        {data: {
+                            children: q.Var('finalChildren')
+                        }}
+                    )
+                )
+            )
+        ),
+        null
+    )
+}
+
 export async function getCategoryNamesFromParent(parentId:string) {
 
     return await client.query(
@@ -112,62 +171,7 @@ export async function updateCategoryInfo(id:string, data:UpdateCategoryInfoData,
                         addChildInnerQuery(data.parent as Expr, parentChildren, id),
                         null
                     ),
-                    q.If(
-                        prevParentId !== '/',
-                        q.Let(
-                            {
-                                children: q.Select(['data', 0],
-                                    q.Paginate(q.Match(
-                                        q.Index('categories_by_id_w_children'),
-                                        prevParentId)
-                                    )
-                                )
-                            },
-                            q.Let(
-                                {
-                                    idRemovedChildren: q.ReplaceStr(
-                                        q.ReplaceStr(
-                                            q.Var('children'),
-                                            id,
-                                            ''
-                                        ),
-                                        ',,',
-                                        ','
-                                    )
-                                },
-                                q.Let(
-                                    {
-                                        finalChildren: q.If(
-                                            q.StartsWith(q.Var('idRemovedChildren'), ','),
-                                            q.SubString(
-                                                q.Var('idRemovedChildren'),
-                                                1,
-                                            ),
-                                            q.If(
-                                                q.EndsWith(q.Var('idRemovedChildren'), ','),
-                                                q.SubString(
-                                                    q.Var('idRemovedChildren'),
-                                                    0,
-                                                    q.Subtract(
-                                                        q.Length(q.Var('idRemovedChildren')),
-                                                        1
-                                                    )
-                                                ),
-                                                q.Var('idRemovedChildren')
-                                            )
-                                        )
-                                    },
-                                    q.Update(
-                                        q.Ref(q.Collection('categories'), prevParentId),
-                                        {data: {
-                                            children: q.Var('finalChildren')
-                                        }}
-                                    )
-                                )
-                            )
-                        ),
-                        null
-                    )
+                    removeChildInnerQuery(prevParentId, id)
                 )
             ),
             q.Update(
@@ -182,10 +186,11 @@ export async function updateCategoryInfo(id:string, data:UpdateCategoryInfoData,
 export async function deleteCategory(id:string, 
     parentCategoryId:string) {
 
-    return
-
-    return await client.query(
-        q.Delete(q.Ref(q.Collection('categories'), id))
+    await client.query(
+        q.Do(
+            removeChildInnerQuery(parentCategoryId, id),
+            q.Delete(q.Ref(q.Collection('categories'), id))
+        )
     )
 }
 
