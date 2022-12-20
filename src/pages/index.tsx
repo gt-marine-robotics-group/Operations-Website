@@ -11,8 +11,6 @@ interface Props {
 
 export default function Home({user}:Props) {
 
-	console.log(user)
-
 	return (
 		<>
 			<Head>

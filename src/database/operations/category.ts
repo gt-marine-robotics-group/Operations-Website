@@ -95,12 +95,6 @@ interface UpdateCategoryInfoData {
 
 export async function updateCategoryInfo(id:string, data:UpdateCategoryInfoData, 
     parentChildren:string[], prevParentId:string) {
-    
-    // const test = await client.query(
-    //     q.Paginate(q.Match(q.Index('categories_by_id_w_children'), prevParentId))
-    // )
-    // console.log(test)
-    // q.Select(['data', 0]) => string
 
     if (data.parent !== '/') {
         data.parent = q.Ref(q.Collection('categories'), data.parent)

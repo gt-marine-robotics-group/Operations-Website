@@ -20,7 +20,6 @@ interface FormVals {
 
 export default function CategoryForm({initialCategory}:Props) {
 
-    console.log('initialCategory', initialCategory)
     const [parentCategory, setParentCategory] = 
         useState<string>(!initialCategory ? '/' : 
             typeof(initialCategory.data.parent) === 'string' ? 

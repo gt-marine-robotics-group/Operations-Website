@@ -12,8 +12,6 @@ interface Props {
 
 export default function UpdateCategory({category}:Props) {
 
-    console.log(category)
-
     return (
         <>
             <Head>
