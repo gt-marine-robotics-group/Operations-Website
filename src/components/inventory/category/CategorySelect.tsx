@@ -9,6 +9,7 @@ interface Props {
     selected: string;
     text: string;
     updateCategoryMap?: (vals:CategoryMap) => void;
+    blacklistCategoryId?: string;
 }
 
 export interface CategoryMap {
@@ -25,7 +26,7 @@ const defaultBank:CategoryMap = {'/': {
 }}
 
 export default function CategorySelect({setSelected, selected, 
-    text, updateCategoryMap}:Props) {
+    text, updateCategoryMap, blacklistCategoryId}:Props) {
 
     const [bank, setBank] = useState<CategoryMap>(defaultBank)
     const [loadingInitialData, setLoadingInitialData] = useState(true)
@@ -123,7 +124,8 @@ export default function CategorySelect({setSelected, selected,
             </Grid>
             <CategorySelectDialog setSelected={setSelected} open={openDialog}
                 setOpen={setOpenDialog} bank={bank} setBank={setBank}
-                updateCategoryMap={updateCategoryMap} />
+                updateCategoryMap={updateCategoryMap} 
+                blacklistCategoryId={blacklistCategoryId} />
         </Box>
     )
 }

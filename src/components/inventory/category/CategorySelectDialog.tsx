@@ -13,6 +13,7 @@ interface Props {
     bank: CategoryMap;
     setBank: Dispatch<SetStateAction<CategoryMap>>;
     updateCategoryMap?: (vals:CategoryMap) => void;
+    blacklistCategoryId?: string;
 }
 
 interface DisplayProps {
@@ -22,10 +23,11 @@ interface DisplayProps {
     bank: Props['bank'];
     setBank: Props['setBank'];
     updateCategoryMap?: (vals:CategoryMap) => void;
+    blacklistCategoryId?: string;
 }
 
 function CategoryDisplay({id, selected, setSelected, bank, setBank,
-    updateCategoryMap}:DisplayProps) {
+    updateCategoryMap, blacklistCategoryId}:DisplayProps) {
 
     const [showChildren, setShowChildren] = useState(false)
     const [loadingChildren, setLoadingChildren] = useState(false)
@@ -113,12 +115,15 @@ function CategoryDisplay({id, selected, setSelected, bank, setBank,
             </Box>
             {hasChildren && showChildren && <Box pl={5}>
                 {loadingChildren ? <CircularProgress /> : 
-                    bank[id].children.map((childId, i) => (
+                    bank[id].children.filter(childId => (
+                        childId !== blacklistCategoryId)
+                    ).map((childId, i) => (
                         <Box key={i}>
                             <CategoryDisplay id={childId} bank={bank}
                                 setBank={setBank} selected={selected}
                                 setSelected={setSelected}
-                                updateCategoryMap={updateCategoryMap} />
+                                updateCategoryMap={updateCategoryMap}
+                                blacklistCategoryId={blacklistCategoryId} />
                         </Box>
                     ))}
             </Box>}
@@ -127,7 +132,7 @@ function CategoryDisplay({id, selected, setSelected, bank, setBank,
 }
 
 export default function CategorySelectDialog({setSelected, 
-    open, setOpen, bank, setBank, updateCategoryMap}:Props) {
+    open, setOpen, bank, setBank, updateCategoryMap, blacklistCategoryId}:Props) {
     
     const theme = useTheme()
     const fullScreenDialog = useMediaQuery(theme.breakpoints.down('lg'))
@@ -147,12 +152,15 @@ export default function CategorySelectDialog({setSelected,
             </DialogTitle>
             <DialogContent>
                 <Box minWidth={!fullScreenDialog ? 900: 0}>
-                    {['/', ...bank['/'].children].map((id, i) => (
+                    {['/', ...bank['/'].children].filter(childId => (
+                        childId !== blacklistCategoryId)
+                    ).map((id, i) => (
                         <Box key={i}>
                             <CategoryDisplay id={id} bank={bank} setBank={setBank}
                                 setSelected={setDialogSelected} 
                                 selected={dialogSelected}
-                                updateCategoryMap={updateCategoryMap} /> 
+                                updateCategoryMap={updateCategoryMap}
+                                blacklistCategoryId={blacklistCategoryId} /> 
                         </Box>
                     ))}
                 </Box>

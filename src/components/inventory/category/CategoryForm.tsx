@@ -91,6 +91,7 @@ export default function CategoryForm({initialCategory}:Props) {
                     <CategorySelect setSelected={setParentCategory}
                         selected={parentCategory} 
                         updateCategoryMap={updateCategoryMap}
+                        blacklistCategoryId={initialCategory?.ref['@ref'].id}
                         text="Parent Category" />
                 </FormGroup>
             </Box>
