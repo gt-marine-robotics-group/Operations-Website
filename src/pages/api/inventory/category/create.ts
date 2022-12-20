@@ -10,8 +10,6 @@ export default verifyUser(async function CreateCategory(req:NextApiRequest, res:
 
     try {
 
-        console.log(req.body)
-
         if (!includesPartModifiableRole(req.body.jwtUser.roles)) {
             return res.status(403).json({msg: 'Permission to add category denied.'})
         }

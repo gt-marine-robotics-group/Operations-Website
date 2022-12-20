@@ -40,6 +40,7 @@ export default function CategoryForm({initialCategory}:Props) {
         actions:FormikHelpers<FormVals>) => {
         setSubmitting(true)
         try {
+            const search = values.name.split(' ').filter(v => v).map(v => v.toLowerCase())
             if (!initialCategory) {
                 await axios({
                     method: 'POST',
@@ -49,19 +50,32 @@ export default function CategoryForm({initialCategory}:Props) {
                         parent: parentCategory,
                         children: [],
                         parts: [],
-                        search: values.name.split(' ').filter(v => v).map(v => v.toLowerCase()),
+                        search,
                     }, 
                     parentChildren: categoryBank[parentCategory].children
                 }
                 })
             } else {
-                // update the category
+                await axios({
+                    method: 'POST',
+                    url: `/api/inventory/category/${initialCategory.ref['@ref'].id}/update`,
+                    data: {data: {
+                        name: values.name,
+                        parent: parentCategory,
+                        search
+                    },
+                    parentChildren: categoryBank[parentCategory].children,
+                    prevParentId: typeof(initialCategory.data.parent) === 'string' ?
+                        initialCategory.data.parent : 
+                        initialCategory.data.parent['@ref'].id
+                }
+                })
             }
 
             Router.push({
                 pathname: '/inventory',
                 query: {
-                    categoryAdded: true
+                    categoryChange: initialCategory ? 'update' : 'add'
                 }
             }) 
         } catch (e) {

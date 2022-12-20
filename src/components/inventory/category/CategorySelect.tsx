@@ -70,15 +70,17 @@ export default function CategorySelect({setSelected, selected,
                     name: '',
                     children: []
                 }}
+                const names:string[] = []
                 for (const info of data) {
                     if (Array.isArray(info)) {
+                        names.push(info[1] as string)
                         bankCopy['/'].children.push(info[0])
                         bankCopy[info[0]] = {
                             name: info[1],
                             children: info[2] ? info[2].split(',') : [],
                             parent: '/'
                         }
-                    } else if (!(bankCopy['/'].children.includes(info))) {
+                    } else if (!(names.includes(info))) {
                         bankCopy[selected] = {
                             name: info,
                             children: []
