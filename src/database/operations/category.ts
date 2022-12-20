@@ -1,6 +1,6 @@
 import client from '../fauna'
 import {query as q, Expr} from 'faunadb'
-import { S_CategoryData } from '../interfaces/Category'
+import { S_Category, S_CategoryData } from '../interfaces/Category'
 import { S_Ref } from '../interfaces/fauna'
 
 function getCategoryNamesAndChildrenFromParentInnerQuery(parentId:string) {
@@ -79,4 +79,11 @@ export async function createCategory(data:CreateCategoryData,
             )
         )
     )
+}
+
+export async function getCategory(id:string) {
+    
+    return await client.query(
+        q.Get(q.Ref(q.Collection('categories'), id))
+    ) as S_Category
 }

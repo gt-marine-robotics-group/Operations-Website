@@ -8,6 +8,7 @@ import CategorySelect, { CategoryMap } from "./CategorySelect";
 import axios from 'axios'
 import Router from 'next/router'
 import { BluePrimaryButton } from "../../misc/buttons";
+import { C_Ref } from "../../../database/interfaces/fauna";
 
 class Props {
     initialCategory?: C_Category;
@@ -19,8 +20,12 @@ interface FormVals {
 
 export default function CategoryForm({initialCategory}:Props) {
 
+    console.log('initialCategory', initialCategory)
     const [parentCategory, setParentCategory] = 
-        useState(initialCategory?.data.parent['@ref'].id || '/')
+        useState<string>(!initialCategory ? '/' : 
+            typeof(initialCategory.data.parent) === 'string' ? 
+            initialCategory.data.parent as string : 
+            (initialCategory.data.parent as C_Ref)['@ref'].id as any)
     const [categoryBank, setCategoryBank] = useState<CategoryMap>({'/': {
         name: '',
         children: []

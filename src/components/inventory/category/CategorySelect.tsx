@@ -34,11 +34,14 @@ export default function CategorySelect({setSelected, selected,
     const [openDialog, setOpenDialog] = useState(false)
 
     const path = useMemo(() => {
-        if (!selected) {
-            return '/'
-        }
-        if (selected === '/') {
+        if (loadingInitialData) {
             return 'None'
+        }
+        if (!selected || selected === '/') {
+            return 'None'
+        }
+        if (!bank[selected].parent) {
+            return `.../ ${bank[selected].name}`
         }
         const p = []
         let c:string|undefined = selected
@@ -47,7 +50,7 @@ export default function CategorySelect({setSelected, selected,
             c = bank[c].parent
         }
         return p.reverse().join(' / ')
-    }, [selected])
+    }, [selected, loadingInitialData])
 
     useEffect(() => {
         const loadInitialData = async () => {
@@ -71,7 +74,8 @@ export default function CategorySelect({setSelected, selected,
                         bankCopy['/'].children.push(info[0])
                         bankCopy[info[0]] = {
                             name: info[1],
-                            children: info[2] ? info[2].split(',') : []
+                            children: info[2] ? info[2].split(',') : [],
+                            parent: '/'
                         }
                     } else if (!(bankCopy['/'].children.includes(info))) {
                         bankCopy[selected] = {

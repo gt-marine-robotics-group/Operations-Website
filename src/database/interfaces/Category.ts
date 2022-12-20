@@ -7,12 +7,12 @@ interface CategoryData {
 }
 
 export interface S_CategoryData extends CategoryData {
-    parent: S_Ref;
+    parent: S_Ref | string;
     parts: S_Ref[];
 }
 
 export interface C_CategoryData extends CategoryData {
-    parent: C_Ref;
+    parent: C_Ref | string;
     parts: C_Ref[];
 }
 
