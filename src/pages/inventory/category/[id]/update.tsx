@@ -34,9 +34,14 @@ export const getServerSideProps:GetServerSideProps = async (ctx:GetServerSidePro
         return redirect
     }
 
-    const category = await getCategory(ctx.params?.id?.toString() as string)
+    try {
+        const category = await getCategory(ctx.params?.id?.toString() as string)
 
-    return {props: {
-        category: JSON.parse(JSON.stringify(category))
-    }}
+        return {props: {
+            category: JSON.parse(JSON.stringify(category))
+        }}
+    } catch (e) {
+        console.log(e)
+        return {props: {}, redirect: {destination: '/inventory'}}
+    }
 }
