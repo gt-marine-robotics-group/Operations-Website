@@ -1,6 +1,11 @@
 import { Box, Container, Paper, Typography } from "@mui/material";
+import PartForm from "../PartForm";
 
-export default function Main() {
+interface Props {
+    projects: {id:string;name:string}[];
+}
+
+export default function Main({projects}:Props) {
 
     return (
         <Box mt={3}>
@@ -11,6 +16,9 @@ export default function Main() {
                             <Typography variant="h4">
                                 Add Part
                             </Typography>
+                        </Box>
+                        <Box maxWidth={400}>
+                            <PartForm projects={projects} />
                         </Box>
                     </Box>
                 </Paper>
