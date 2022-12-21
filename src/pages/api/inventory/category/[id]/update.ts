@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { updateCategoryInfo } from "../../../../../database/operations/category";
-import { verifyUser } from "../../../../../utils/auth";
+import { includesPartModifiableRole, verifyUser } from "../../../../../utils/auth";
 
 export default verifyUser(async function UpdateCategory(req:NextApiRequest, res:NextApiResponse) {
 
@@ -9,6 +9,10 @@ export default verifyUser(async function UpdateCategory(req:NextApiRequest, res:
     }
 
     try {
+
+        if (!includesPartModifiableRole(req.body.jwtUser.roles)) {
+            return res.status(403).json({msg: 'Permission to update category denied.'})
+        }
 
         await updateCategoryInfo(req.query.id as string, 
             req.body.data, req.body.parentChildren, req.body.prevParentId)
