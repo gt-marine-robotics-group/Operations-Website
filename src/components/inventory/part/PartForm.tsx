@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { C_Part } from "../../../database/interfaces/Part";
 import { FormikProps, FormikHelpers, Formik, Form } from 'formik'
-import { Box, FormGroup, Skeleton, Autocomplete, TextField } from "@mui/material";
+import { Box, FormGroup, Skeleton, Autocomplete, TextField, Grid } from "@mui/material";
 import * as yup from 'yup'
 import FormikTextField from "../../formik/TextField";
 import axios from 'axios'
+import { FormatAlignCenter } from "@mui/icons-material";
+import CategorySelect from "../category/CategorySelect";
+import { BluePrimaryButton } from "../../misc/buttons";
 
 interface Props {
     initialPart?: C_Part;
@@ -90,7 +93,7 @@ export default function PartForm({initialPart}:Props) {
     const onSubmit = async (values:FormVals, 
         actions:FormikHelpers<FormVals>) => {
         console.log(values)
-        setSubmitting(true)
+        // setSubmitting(true)
     }
 
     console.log('projects', projects)
@@ -133,16 +136,45 @@ export default function PartForm({initialPart}:Props) {
                             <FormGroup>
                                 <Autocomplete freeSolo id="autocomplete-units"
                                     options={['m.', 'cm.', 'mm.', 'ft.', 'in.']}
-                                    onChange={(e:any) => actions.setFieldValue('units', e.target.value)}
+                                    onChange={(e, val) => actions.setFieldValue('units', val)}
                                     renderInput={(params) => <TextField {...params} 
                                     label="Units" 
                                     InputLabelProps={{sx: {color: '#535040'}}} />} 
                                 />
                             </FormGroup>
                         </Box>
+                        <Box my={3}>
+                            <FormGroup>
+                                <FormikTextField name="img" label="Image Link" />
+                            </FormGroup>
+                        </Box>
+                        <Box my={3}>
+                            <FormGroup>
+                                <FormikTextField name="note" label="Note" 
+                                multiline rows={3} />
+                            </FormGroup>
+                        </Box>
                     </Form>
                 )}
             </Formik>
+            <Box my={3}>
+                <FormGroup>
+                    <CategorySelect selected={category} setSelected={setCategory}
+                        text="Category" />
+                </FormGroup>
+            </Box>
+            <Box mt={5}>
+                <Grid container spacing={3} justifyContent="center">
+                    <Grid item>
+                        <Box width={150}>
+                            <BluePrimaryButton fullWidth onClick={() => formRef.current?.submitForm()}
+                                disabled={submitting}>
+                                {initialPart ? 'Update' : 'Create'}
+                            </BluePrimaryButton>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Box>
         </Box>
     )
 }
