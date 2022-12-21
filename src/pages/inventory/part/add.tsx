@@ -4,11 +4,7 @@ import MainHeader from "../../../components/nav/MainHeader";
 import { getPartModifierUser } from "../../../utils/auth";
 import Main from '../../../components/inventory/part/add/Main'
 
-interface Props {
-    projects: {id:string;name:string;}[];
-}
-
-export default function AddPart({projects}:Props) {
+export default function AddPart() {
 
     return (
         <>
@@ -19,7 +15,7 @@ export default function AddPart({projects}:Props) {
             </Head> 
             <div className="root-header-only">
                 <MainHeader loggedIn />
-                <Main projects={projects} />
+                <Main />
             </div>
         </>
     )

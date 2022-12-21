@@ -7,15 +7,13 @@ import FormikTextField from "../../formik/TextField";
 import axios from 'axios'
 import { FormatAlignCenter } from "@mui/icons-material";
 import CategorySelect from "../category/CategorySelect";
-import { BluePrimaryButton } from "../../misc/buttons";
+import { BluePrimaryButton, BluePrimaryOutlinedButton } from "../../misc/buttons";
 import Router from 'next/router'
+import { C_Ref } from "../../../database/interfaces/fauna";
 
 interface Props {
     initialPart?: C_Part;
-    projects: {
-        id: string;
-        name: string;
-    }[];
+    initialCategoryParts?: C_Ref[];
 }
 
 interface FormVals {
@@ -30,7 +28,7 @@ interface FormVals {
     note: string;
 }
 
-export default function PartForm({initialPart}:Props) {
+export default function PartForm({initialPart, initialCategoryParts}:Props) {
 
     const [initialValues, setInitialValues] = useState(() => {
         const values:FormVals = {
@@ -39,6 +37,10 @@ export default function PartForm({initialPart}:Props) {
         }
         if (initialPart) {
             values.name = initialPart.data.name
+            values.available = initialPart.data.available
+            values.onTheWay = initialPart.data.onTheWay
+            values.img = initialPart.data.img
+            values.note = initialPart.data.note
         }
         return values
     })
@@ -50,7 +52,11 @@ export default function PartForm({initialPart}:Props) {
 
         const formProjects:FormVals['projects'] = {}
         for (const project of projects) {
-            formProjects[project.id] = 0
+            if (project.id in (initialPart?.data.projects || {})) {
+                formProjects[project.id] = initialPart?.data.projects[project.id] as number
+            } else {
+                formProjects[project.id] = 0
+            }
         }
         setInitialValues({...initialValues, projects: formProjects})
     }, [projects])
@@ -123,6 +129,10 @@ export default function PartForm({initialPart}:Props) {
             console.log(e)
             setSubmitting(false)
         }
+    }
+
+    const deletePart = async () => {
+
     }
 
     console.log('projects', projects)
@@ -208,6 +218,14 @@ export default function PartForm({initialPart}:Props) {
                             </BluePrimaryButton>
                         </Box>
                     </Grid>
+                    {initialPart && <Grid item>
+                        <Box width={150} >
+                            <BluePrimaryOutlinedButton fullWidth disabled={submitting}
+                                onClick={() => deletePart()}>
+                                Delete
+                            </BluePrimaryOutlinedButton>
+                        </Box>
+                    </Grid>}
                 </Grid>
             </Box>
         </Box>

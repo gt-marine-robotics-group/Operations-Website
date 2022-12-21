@@ -2,6 +2,7 @@ import client from '../fauna'
 import { Expr, query as q } from 'faunadb'
 import { PartData, S_Part } from "../interfaces/Part";
 import { addPartToCategoryInnerQuery } from './category';
+import { S_Ref } from '../interfaces/fauna';
 
 interface CreatePartData extends PartData {
     category: string|Expr;
@@ -25,4 +26,29 @@ export async function createPart(data:CreatePartData) {
             )
         )
     ) as S_Part
+}
+
+export async function getUpdatePartInfo(id:string) {
+
+    return await client.query(
+        q.Let(
+            {
+                part: q.Get(q.Ref(q.Collection('parts'), id))
+            },
+            {
+                part: q.Var('part'),
+                categoryParts: q.If(
+                    q.Equals(q.Select(['data', 'category'], q.Var('part')), '/'),
+                    [],
+                    q.Select(
+                        'data',
+                        q.Paginate(q.Match(
+                            q.Index('categories_by_ref_w_parts'), 
+                            q.Select(['data', 'category'], q.Var('part'))
+                        ))
+                    )
+                )
+            }
+        )
+    ) as {part:S_Part, categoryParts:S_Ref[]}
 }
