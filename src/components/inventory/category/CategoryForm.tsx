@@ -56,6 +56,8 @@ export default function CategoryForm({initialCategory}:Props) {
                     parentChildren: categoryBank[parentCategory].children
                 }
                 })
+                // TODO: Update the 'categoryData' in the sessionStorage with
+                // Category returned from api call
             } else {
                 await axios({
                     method: 'POST',
@@ -71,6 +73,8 @@ export default function CategoryForm({initialCategory}:Props) {
                         initialCategory.data.parent['@ref'].id
                 }
                 })
+                // TODO: Update the 'categoryData' in the sessionStorage with
+                // Category returned from api call
             }
 
             try {
@@ -109,6 +113,8 @@ export default function CategoryForm({initialCategory}:Props) {
                         initialCategory.data.parent['@ref'].id
                 }
             })
+            // TODO: Update the 'categoryData' in the sessionStorage with
+            // Category returned from api call
 
             try {
                 sessionStorage.setItem('categorySelectData', '')

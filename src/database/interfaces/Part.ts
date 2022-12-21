@@ -16,12 +16,12 @@ interface PartData {
 
 export interface S_PartData extends PartData {
     category: S_Ref | string;
-    location: S_Ref;
+    location?: S_Ref;
 }
 
 export interface C_PartData extends PartData {
     category: C_Ref | string;
-    location: C_Ref;
+    location?: C_Ref;
 }
 
 export interface S_Part {

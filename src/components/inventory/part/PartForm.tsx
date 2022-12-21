@@ -8,6 +8,7 @@ import axios from 'axios'
 import { FormatAlignCenter } from "@mui/icons-material";
 import CategorySelect from "../category/CategorySelect";
 import { BluePrimaryButton } from "../../misc/buttons";
+import Router from 'next/router'
 
 interface Props {
     initialPart?: C_Part;
@@ -20,6 +21,7 @@ interface Props {
 interface FormVals {
     name: string;
     available: number;
+    onTheWay: number;
     projects: {
         [name:string]: number;
     };
@@ -32,7 +34,8 @@ export default function PartForm({initialPart}:Props) {
 
     const [initialValues, setInitialValues] = useState(() => {
         const values:FormVals = {
-            name: '', available: 0, projects: {}, img: '', units: '', note: ''
+            name: '', available: 0, onTheWay: 0, 
+            projects: {}, img: '', units: '', note: ''
         }
         if (initialPart) {
             values.name = initialPart.data.name
@@ -93,7 +96,33 @@ export default function PartForm({initialPart}:Props) {
     const onSubmit = async (values:FormVals, 
         actions:FormikHelpers<FormVals>) => {
         console.log(values)
-        // setSubmitting(true)
+        console.log(category)
+        setSubmitting(true)
+        try {
+            const search = values.name.split(' ').filter(v => v).map(v => v.toLowerCase())
+            let id = initialPart?.ref['@ref'].id
+            if (!initialPart) {
+                const {data} = await axios({
+                    method: 'POST',
+                    url: '/api/inventory/part/create',
+                    data: {data: {
+                        ...values,
+                        search,
+                        category
+                    }}
+                })
+                id = data.ref['@ref'].id
+                // TODO: Update the 'partData' in sessionStorage with 
+                // Part returned from API call
+            }
+
+            Router.push({
+                pathname: `/inventory/part/${id}`
+            })
+        } catch (e) {
+            console.log(e)
+            setSubmitting(false)
+        }
     }
 
     console.log('projects', projects)
@@ -117,6 +146,12 @@ export default function PartForm({initialPart}:Props) {
                             <FormGroup>
                                 <FormikTextField name="available" 
                                     label="Amount Available" type="number" />
+                            </FormGroup>
+                        </Box>
+                        <Box my={3}>
+                            <FormGroup>
+                                <FormikTextField name="onTheWay" 
+                                    label="Amount on the Way" type="number" />
                             </FormGroup>
                         </Box>
                         {Object.keys(actions.values.projects).length === 0 ? 
