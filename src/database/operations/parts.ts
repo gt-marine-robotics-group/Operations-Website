@@ -52,3 +52,43 @@ export async function getUpdatePartInfo(id:string) {
         )
     ) as {part:S_Part, categoryParts:S_Ref[]}
 }
+
+export async function updatePart(id:string, data:CreatePartData, 
+    prevCategoryId:string, prevCategoryParts:string[]) {
+    
+    const partIndex = prevCategoryParts.indexOf(id)
+    if (partIndex > -1) {
+        prevCategoryParts.splice(partIndex)
+    }
+
+    const newCategoryId = data.category
+
+    if (data.category !== '/') {
+        data.category = q.Ref(q.Collection('categories'), data.category)
+    }
+
+    await client.query(
+        q.Do(
+            q.If(
+                prevCategoryId === newCategoryId,
+                null,
+                q.Do(
+                    q.Update(
+                        q.Ref(q.Collection('categories'), prevCategoryId),
+                        {data: {
+                            parts: prevCategoryParts.map(p => (
+                                q.Ref(q.Collection('parts'), p)
+                            ))
+                        }}
+                    ),
+                    addPartToCategoryInnerQuery(data.category, 
+                        q.Ref(q.Collection('parts'), id))
+                )
+            ),
+            q.Update(
+                q.Ref(q.Collection('parts'), id),
+                {data}
+            )
+        )
+    )
+}

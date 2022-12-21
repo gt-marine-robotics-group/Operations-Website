@@ -5,7 +5,6 @@ import { Box, FormGroup, Skeleton, Autocomplete, TextField, Grid } from "@mui/ma
 import * as yup from 'yup'
 import FormikTextField from "../../formik/TextField";
 import axios from 'axios'
-import { FormatAlignCenter } from "@mui/icons-material";
 import CategorySelect from "../category/CategorySelect";
 import { BluePrimaryButton, BluePrimaryOutlinedButton } from "../../misc/buttons";
 import Router from 'next/router'
@@ -118,6 +117,22 @@ export default function PartForm({initialPart, initialCategoryParts}:Props) {
                     }}
                 })
                 id = data.ref['@ref'].id
+                // TODO: Update the 'partData' in sessionStorage with 
+                // Part returned from API call
+            } else {
+                await axios({
+                    method: 'POST',
+                    url: `/api/inventory/part/${initialPart.ref['@ref'].id}/update`,
+                    data: {
+                        data: {
+                            ...values, search, category
+                        }, 
+                        prevCategoryId: typeof(initialPart.data.category) === 'string' ?
+                            initialPart.data.category :
+                            initialPart.data.category['@ref'].id,
+                        prevCategoryParts: initialCategoryParts?.map(p => p['@ref'].id)
+                    }
+                })
                 // TODO: Update the 'partData' in sessionStorage with 
                 // Part returned from API call
             }
