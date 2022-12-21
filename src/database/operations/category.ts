@@ -84,6 +84,27 @@ function removeChildInnerQuery(id:string, childId:string) {
     )
 }
 
+export function addPartToCategoryInnerQuery(ref:Expr|'/', part:Expr):Expr {
+
+    if (ref === '/') {
+        return null as any
+    }
+
+    return q.Let(
+        {
+            parts: q.Select('data', 
+                q.Paginate(q.Match(q.Index('categories_by_ref_w_parts'), ref))
+            )
+        },
+        q.Update(
+            ref,
+            {data: {
+                parts: q.Append(part, q.Var('parts'))
+            }} 
+        )
+    )
+}
+
 export async function getCategoryNamesFromParent(parentId:string) {
 
     return await client.query(

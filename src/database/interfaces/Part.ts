@@ -1,6 +1,6 @@
 import { C_Ref, S_Ref } from "./fauna";
 
-interface PartData {
+export interface PartData {
     name: string;
     search: string[];
     available: number;
