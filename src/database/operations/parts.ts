@@ -73,13 +73,17 @@ export async function updatePart(id:string, data:CreatePartData,
                 prevCategoryId === newCategoryId,
                 null,
                 q.Do(
-                    q.Update(
-                        q.Ref(q.Collection('categories'), prevCategoryId),
-                        {data: {
-                            parts: prevCategoryParts.map(p => (
-                                q.Ref(q.Collection('parts'), p)
-                            ))
-                        }}
+                    q.If(
+                        prevCategoryId !== '/',
+                        q.Update(
+                            q.Ref(q.Collection('categories'), prevCategoryId),
+                            {data: {
+                                parts: prevCategoryParts.map(p => (
+                                    q.Ref(q.Collection('parts'), p)
+                                ))
+                            }}
+                        ),
+                        null
                     ),
                     addPartToCategoryInnerQuery(data.category, 
                         q.Ref(q.Collection('parts'), id))
