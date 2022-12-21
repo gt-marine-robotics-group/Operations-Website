@@ -68,6 +68,7 @@ function CategoryDisplay({id, selected, setSelected, bank, setBank,
                     }
                 }
 
+                sessionStorage.setItem('categorySelectData', JSON.stringify(bankCopy))
                 setLoadingChildren(false)
                 setBank(bankCopy)
                 if (updateCategoryMap) {

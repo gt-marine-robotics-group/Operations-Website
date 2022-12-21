@@ -73,6 +73,7 @@ export default function CategoryForm({initialCategory}:Props) {
                 })
             }
 
+            sessionStorage.setItem('categorySelectData', '')
             Router.push({
                 pathname: '/inventory',
                 query: {
@@ -107,6 +108,7 @@ export default function CategoryForm({initialCategory}:Props) {
                 }
             })
 
+            sessionStorage.setItem('categorySelectData', '')
             Router.push({
                 pathname: '/inventory',
                 query: {
