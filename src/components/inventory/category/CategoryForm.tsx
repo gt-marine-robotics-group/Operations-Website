@@ -73,7 +73,9 @@ export default function CategoryForm({initialCategory}:Props) {
                 })
             }
 
-            sessionStorage.setItem('categorySelectData', '')
+            try {
+                sessionStorage.setItem('categorySelectData', '')
+            } catch (e) {}
             Router.push({
                 pathname: '/inventory',
                 query: {
@@ -108,7 +110,9 @@ export default function CategoryForm({initialCategory}:Props) {
                 }
             })
 
-            sessionStorage.setItem('categorySelectData', '')
+            try {
+                sessionStorage.setItem('categorySelectData', '')
+            } catch (e) {}
             Router.push({
                 pathname: '/inventory',
                 query: {

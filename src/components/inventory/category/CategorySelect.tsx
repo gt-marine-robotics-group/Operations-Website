@@ -55,7 +55,6 @@ export default function CategorySelect({setSelected, selected,
 
     useEffect(() => {
         const loadInitialData = async () => {
-            console.log('loading fresh data')
             try {
 
                 const {data} = await axios.get('/api/inventory/category', {
@@ -88,7 +87,9 @@ export default function CategorySelect({setSelected, selected,
                         }
                     }
                 }
-                sessionStorage.setItem('categorySelectData', JSON.stringify(bankCopy))
+                try {
+                    sessionStorage.setItem('categorySelectData', JSON.stringify(bankCopy))
+                } catch (e) {}
                 setBank(bankCopy)
                 setLoadingInitialData(false)
                 if (updateCategoryMap) {
@@ -103,7 +104,6 @@ export default function CategorySelect({setSelected, selected,
         try {
             const data = sessionStorage.getItem('categorySelectData') 
             if(data) {
-                console.log('got session data')
                 const parsedData = JSON.parse(data)
                 setBank(parsedData)
                 setLoadingInitialData(false)
