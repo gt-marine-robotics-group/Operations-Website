@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { C_Part } from "../../../database/interfaces/Part";
 import { FormikProps, FormikHelpers, Formik, Form } from 'formik'
-import { Box, FormGroup } from "@mui/material";
+import { Box, FormGroup, Skeleton, Autocomplete, TextField } from "@mui/material";
 import * as yup from 'yup'
 import FormikTextField from "../../formik/TextField";
 import axios from 'axios'
@@ -89,6 +89,7 @@ export default function PartForm({initialPart}:Props) {
 
     const onSubmit = async (values:FormVals, 
         actions:FormikHelpers<FormVals>) => {
+        console.log(values)
         setSubmitting(true)
     }
 
@@ -102,7 +103,7 @@ export default function PartForm({initialPart}:Props) {
                 available: yup.number().moreThan(-1)
             })} initialValues={initialValues} enableReinitialize
             onSubmit={(values, actions) => onSubmit(values, actions)}>
-                {() => (
+                {(actions) => (
                     <Form>
                         <Box my={3}>
                             <FormGroup>
@@ -113,6 +114,30 @@ export default function PartForm({initialPart}:Props) {
                             <FormGroup>
                                 <FormikTextField name="available" 
                                     label="Amount Available" type="number" />
+                            </FormGroup>
+                        </Box>
+                        {Object.keys(actions.values.projects).length === 0 ? 
+                        Array(3).fill(null).map((_, i) => (
+                            <Box my={3} key={i}>
+                                <Skeleton variant="rounded" height={50} />
+                            </Box>
+                        )) : projects.map(p => (
+                            <Box key={p.id} my={3}>
+                                <FormGroup>
+                                    <FormikTextField name={`projects.${p.id}`} 
+                                        label={`${p.name} In Use`} type="number" />
+                                </FormGroup>
+                            </Box>
+                        ))}
+                        <Box my={3}>
+                            <FormGroup>
+                                <Autocomplete freeSolo id="autocomplete-units"
+                                    options={['m.', 'cm.', 'mm.', 'ft.', 'in.']}
+                                    onChange={(e:any) => actions.setFieldValue('units', e.target.value)}
+                                    renderInput={(params) => <TextField {...params} 
+                                    label="Units" 
+                                    InputLabelProps={{sx: {color: '#535040'}}} />} 
+                                />
                             </FormGroup>
                         </Box>
                     </Form>

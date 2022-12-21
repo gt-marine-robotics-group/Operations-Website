@@ -17,7 +17,7 @@ export default function Main({projects}:Props) {
                                 Add Part
                             </Typography>
                         </Box>
-                        <Box maxWidth={400}>
+                        <Box maxWidth={400} mx="auto">
                             <PartForm projects={projects} />
                         </Box>
                     </Box>
