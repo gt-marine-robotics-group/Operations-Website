@@ -147,11 +147,31 @@ export default function PartForm({initialPart, initialCategoryParts}:Props) {
     }
 
     const deletePart = async () => {
-
+        if (!initialPart) return
+        setSubmitting(true)
+        try {
+            await axios({
+                method: 'POST',
+                url: `/api/inventory/part/${initialPart.ref['@ref'].id}/delete`,
+                data: {
+                    categoryId: typeof(initialPart.data.category) === 'string' ?
+                        initialPart.data.category :
+                        initialPart.data.category['@ref'].id,
+                    categoryParts: initialCategoryParts?.map(p => p['@ref'].id)
+                }
+            })
+            // TODO: Update the 'partData' in sessionStorage
+            Router.push({
+                pathname: '/inventory',
+                query: {
+                    partChange: 'delete'
+                }
+            })
+        } catch (e) {
+            console.log(e)
+            setSubmitting(false)
+        }
     }
-
-    console.log('projects', projects)
-    console.log('initial vals', initialValues)
 
     return (
         <Box>

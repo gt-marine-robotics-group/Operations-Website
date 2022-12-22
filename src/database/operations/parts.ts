@@ -81,3 +81,14 @@ export async function updatePart(id:string, data:CreatePartData,
         )
     )
 }
+
+export async function deletePart(id:string, categoryId:string, 
+    categoryParts:string[]) {
+    
+    await client.query(
+        q.Do(
+            removePartFromCategoryInnerQuery(id, categoryId, categoryParts),
+            q.Delete(q.Ref(q.Collection('parts'), id))
+        )
+    )
+}
