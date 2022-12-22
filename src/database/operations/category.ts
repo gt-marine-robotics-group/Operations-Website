@@ -105,6 +105,28 @@ export function addPartToCategoryInnerQuery(ref:Expr|'/', part:Expr):Expr {
     )
 }
 
+export function removePartFromCategoryInnerQuery(partId:string, categoryId:string,
+    categoryParts:string[]):Expr {
+
+    if (categoryId === '/') {
+        return null as any
+    }
+
+    const partIndex = categoryParts.indexOf(partId)
+    if (partIndex > -1) {
+        categoryParts.splice(partIndex)
+    }
+
+    return q.Update(
+        q.Ref(q.Collection('categories'), categoryId),
+        {data: {
+            parts: categoryParts.map(p => (
+                q.Ref(q.Collection('parts'), p)
+            ))
+        }}
+    )
+}
+
 export async function getCategoryNamesFromParent(parentId:string) {
 
     return await client.query(

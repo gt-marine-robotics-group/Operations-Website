@@ -1,7 +1,7 @@
 import client from '../fauna'
 import { Expr, query as q } from 'faunadb'
 import { PartData, S_Part } from "../interfaces/Part";
-import { addPartToCategoryInnerQuery } from './category';
+import { addPartToCategoryInnerQuery, removePartFromCategoryInnerQuery } from './category';
 import { S_Ref } from '../interfaces/fauna';
 
 interface CreatePartData extends PartData {
@@ -55,11 +55,6 @@ export async function getUpdatePartInfo(id:string) {
 
 export async function updatePart(id:string, data:CreatePartData, 
     prevCategoryId:string, prevCategoryParts:string[]) {
-    
-    const partIndex = prevCategoryParts.indexOf(id)
-    if (partIndex > -1) {
-        prevCategoryParts.splice(partIndex)
-    }
 
     const newCategoryId = data.category
 
@@ -73,18 +68,8 @@ export async function updatePart(id:string, data:CreatePartData,
                 prevCategoryId === newCategoryId,
                 null,
                 q.Do(
-                    q.If(
-                        prevCategoryId !== '/',
-                        q.Update(
-                            q.Ref(q.Collection('categories'), prevCategoryId),
-                            {data: {
-                                parts: prevCategoryParts.map(p => (
-                                    q.Ref(q.Collection('parts'), p)
-                                ))
-                            }}
-                        ),
-                        null
-                    ),
+                    removePartFromCategoryInnerQuery(id, prevCategoryId, 
+                        prevCategoryParts),
                     addPartToCategoryInnerQuery(data.category, 
                         q.Ref(q.Collection('parts'), id))
                 )
