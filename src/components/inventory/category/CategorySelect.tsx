@@ -54,22 +54,24 @@ export default function CategorySelect({setSelected, selected,
     }, [selected, loadingInitialData])
 
     useEffect(() => {
-        const loadInitialData = async () => {
+        const loadInitialData = async (parsedData?:CategoryMap) => {
             try {
 
                 const {data} = await axios.get('/api/inventory/category', {
                     params: {
                         parent: '/',
                         initialSelected: selected || '/',
-                        mode: 'categorySelect'
+                        mode: 'categorySelect',
+                        onlyInitial: Boolean(parsedData)
                     },
                     retry: 3
                 })
 
-                const bankCopy:CategoryMap = {'/': {
+                const bankCopy:CategoryMap = !parsedData ? {'/': {
                     name: '',
                     children: []
-                }}
+                }} : parsedData
+
                 const names:string[] = []
                 for (const info of data) {
                     if (Array.isArray(info)) {
@@ -105,6 +107,10 @@ export default function CategorySelect({setSelected, selected,
             const data = sessionStorage.getItem('categoryData') 
             if(data) {
                 const parsedData = JSON.parse(data)
+                if (selected && !(selected in parsedData)) {
+                    loadInitialData(parsedData)
+                    return
+                }
                 setBank(parsedData)
                 setLoadingInitialData(false)
                 if (updateCategoryMap) {

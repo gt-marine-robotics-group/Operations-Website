@@ -1,11 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getCategoryNamesFromParent, getInitialCategoryNames } from "../../../../database/operations/category";
+import { getCategoryName, getCategoryNamesFromParent, getInitialCategoryNames } from "../../../../database/operations/category";
 import { getInitialInventoryData } from "../../../../database/operations/inventory";
 import { verifyUser } from "../../../../utils/auth";
 
 async function categorySelect(query:NextApiRequest['query']) {
 
     if ('initialSelected' in query) {
+        if (query['onlyInitial'] === 'true') {
+            return await getCategoryName(query.initialSelected as string)
+        }
         return await getInitialCategoryNames(query.initialSelected as string)
     }
     return await getCategoryNamesFromParent(query.parent as string)

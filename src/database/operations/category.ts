@@ -162,6 +162,16 @@ export async function getInitialCategoryNames(initialCategoryId:string) {
     )
 }
 
+export async function getCategoryName(id:string) {
+
+    return await client.query(
+        q.Select(['data'], q.Paginate(q.Match(
+            q.Index('categories_by_id_w_name'),
+            id
+        )))
+    )
+}
+
 interface CreateCategoryData extends Omit<S_CategoryData, 'parent'> {
     parent: string | Expr;
 }
