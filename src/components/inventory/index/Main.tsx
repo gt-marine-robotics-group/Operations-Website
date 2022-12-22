@@ -6,6 +6,7 @@ import { Cookie_User } from "../../../database/interfaces/User";
 import { BluePrimaryButton, BlueSecondaryButton } from "../../misc/buttons";
 import { PrimarySearchBar } from "../../misc/searchBars";
 import useInventory from "../useInventory";
+import ContentDisplay from "./ContentDisplay";
 
 interface Props {
     user: Cookie_User;
@@ -48,6 +49,11 @@ export default function Main({user}:Props) {
                         </Grid>
                     </Grid>
                 </Box>}
+                <Box>
+                    {'/' in categories && <ContentDisplay categories={categories}
+                        parts={parts} loading={loading} 
+                        expandCategory={expandCategory} category='/' />}
+                </Box>
             </Container>
         </Box>
     )

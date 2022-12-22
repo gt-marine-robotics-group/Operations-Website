@@ -86,8 +86,6 @@ export default function useInventory(search:string) {
                 }
             }
 
-            console.log('catCopy', catCopy)
-
             if (sessionCategoryData) {
                 sessionStorage.setItem('categoryData', JSON.stringify({
                     ...JSON.parse(sessionCategoryData),
