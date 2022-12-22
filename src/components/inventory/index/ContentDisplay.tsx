@@ -26,9 +26,15 @@ export default function ContentDisplay({categories, parts, loading,
     })
 
     const openCategory = (id:string) => {
-        setCategoryOpen({...categoryOpen, id: true})
+        if (categoryOpen[id]) {
+            setCategoryOpen({...categoryOpen, [id]: false})
+            return
+        }
+        setCategoryOpen({...categoryOpen, [id]: true})
         expandCategory(id)
     }
+
+    console.log(categoryOpen)
 
     return (
         <Box>
@@ -48,7 +54,9 @@ export default function ContentDisplay({categories, parts, loading,
                                     </Grid>
                                     <Grid item>
                                         <Typography variant="h6">
-                                            {categories[id].name}
+                                            {categories[id].name}{' '}
+                                            ({categories[id].parts.length + 
+                                                categories[id].children.length})
                                         </Typography>
                                     </Grid>
                                 </Grid>

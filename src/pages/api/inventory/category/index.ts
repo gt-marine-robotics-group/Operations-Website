@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getCategoryName, getCategoryNamesFromParent, getInitialCategoryNames } from "../../../../database/operations/category";
-import { getInitialInventoryData } from "../../../../database/operations/inventory";
+import { getInitialInventoryData, getInventoryDataFromIds } from "../../../../database/operations/inventory";
 import { verifyUser } from "../../../../utils/auth";
 
 async function categorySelect(query:NextApiRequest['query']) {
@@ -22,7 +22,8 @@ async function inventory(query:NextApiRequest['query']) {
         return await getInitialInventoryData()
     }
 
-    return null
+    return await getInventoryDataFromIds(query.parentCategory as string, 
+        query['categoryChildIds[]'] as string[])
 }
 
 export default verifyUser(async function Category(req:NextApiRequest, res:NextApiResponse) {

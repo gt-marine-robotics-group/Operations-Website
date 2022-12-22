@@ -121,6 +121,24 @@ export default function useInventory(search:string) {
 
     const expandCategory = async (id:string) => {
         if (loading) return
+
+        setLoading(true)
+
+        // check if already in session storage
+
+        try {
+            const {data} = await axios.get('/api/inventory/category', {
+                params: {
+                    mode: 'inventory',
+                    parentCategory: id,
+                    categoryChildIds: categoryBank[id].children
+                }
+            })
+
+            console.log('data', data)
+        } catch (e) {
+            console.log(e)
+        }
     }
 
     console.log('categoryBank', categoryBank)
