@@ -3,8 +3,9 @@ import { C_CategoryData } from "../../database/interfaces/Category";
 import { C_PartData } from "../../database/interfaces/Part";
 import axios from 'axios'
 import { C_Ref } from "../../database/interfaces/fauna";
+import { CategoryMap } from "./category/CategorySelect";
 
-interface CategoryBank {
+export interface CategoryBank {
     [id:string]: {
         name: string;
         search: string[];
@@ -14,9 +15,10 @@ interface CategoryBank {
     };
 }
 
-interface PartBank {
+export interface PartBank {
     [id:string]: {
         name: string;
+        search: string[];
         category: string;
     };
 }
@@ -33,6 +35,21 @@ export default function useInventory(search:string) {
 
     const loadInitialData = useCallback(async () => {
         setLoading(true)
+        const sessionCategoryData = sessionStorage.getItem('categoryData')
+        const sessionPartData = sessionStorage.getItem('partData')
+        if (sessionCategoryData && sessionPartData) {
+            const parsedCategoryData:CategoryBank = JSON.parse(sessionCategoryData)
+            const parsedPartData:PartBank = JSON.parse(sessionPartData)
+            if ('parts' in (parsedCategoryData['/'] || {})) {
+                console.log('using session storage')
+                setCategoryBank(parsedCategoryData)
+                setPartBank(parsedPartData)
+                setSearchedCategories(parsedCategoryData)
+                setSearchedParts(parsedPartData)
+                setLoading(false)
+                return
+            }
+        }
         try {
             const {data} = await axios.get('/api/inventory/category', {
                 params: {
@@ -41,8 +58,6 @@ export default function useInventory(search:string) {
                 }
             })
 
-            console.log('data', data)
-
             const catCopy:CategoryBank = {'/': {
                 name: '',
                 search: [],
@@ -50,6 +65,7 @@ export default function useInventory(search:string) {
                 parts: []
             }}
             for (const category of data.categories.data) {
+                catCopy['/'].children.push(category.ref['@ref'].id)
                 catCopy[category.ref['@ref'].id] = {
                     name: category.data.name,
                     search: category.data.search,
@@ -61,11 +77,26 @@ export default function useInventory(search:string) {
 
             const pCopy:PartBank = {}
             for (const part of data.parts) {
+                catCopy['/'].parts.push(part[0])
                 pCopy[part[0]] = {
                     name: part[1],
+                    search: (part[1] as string).split(' ')
+                        .filter(v => v).map(v => v.toLowerCase()),
                     category: '/'
                 }
             }
+
+            console.log('catCopy', catCopy)
+
+            if (sessionCategoryData) {
+                sessionStorage.setItem('categoryData', JSON.stringify({
+                    ...JSON.parse(sessionCategoryData),
+                    ...catCopy
+                }))
+            } else {
+                sessionStorage.setItem('categoryData', JSON.stringify(catCopy))
+            }
+            sessionStorage.setItem('partData', JSON.stringify(pCopy))
 
             setCategoryBank(catCopy)
             setPartBank(pCopy)
@@ -86,7 +117,13 @@ export default function useInventory(search:string) {
             return
         }
 
+        // search for stuff
+
     }, [search])
+
+    const expandCategory = async (id:string) => {
+        if (loading) return
+    }
 
     console.log('categoryBank', categoryBank)
     console.log('partBank', partBank)
@@ -94,6 +131,7 @@ export default function useInventory(search:string) {
     return {
         categories: searchedCategories,
         parts: searchedParts,
-        loading
+        loading,
+        expandCategory
     }
 }

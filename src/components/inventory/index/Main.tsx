@@ -15,7 +15,8 @@ export default function Main({user}:Props) {
 
     const [search, setSearch] = useState('')
 
-    const {categories, parts, loading} = useInventory(search)
+    const {categories, parts, loading, 
+        expandCategory} = useInventory(search)
 
     const isAdmin = useMemo(() => (
         user.roles.includes('President') || user.roles.includes('Operations Officer')
