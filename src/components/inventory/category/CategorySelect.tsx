@@ -88,7 +88,7 @@ export default function CategorySelect({setSelected, selected,
                     }
                 }
                 try {
-                    sessionStorage.setItem('categorySelectData', JSON.stringify(bankCopy))
+                    sessionStorage.setItem('categoryData', JSON.stringify(bankCopy))
                 } catch (e) {}
                 setBank(bankCopy)
                 setLoadingInitialData(false)
@@ -102,7 +102,7 @@ export default function CategorySelect({setSelected, selected,
         }
 
         try {
-            const data = sessionStorage.getItem('categorySelectData') 
+            const data = sessionStorage.getItem('categoryData') 
             if(data) {
                 const parsedData = JSON.parse(data)
                 setBank(parsedData)
