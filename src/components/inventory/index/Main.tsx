@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Cookie_User } from "../../../database/interfaces/User";
 import { BluePrimaryButton, BlueSecondaryButton } from "../../misc/buttons";
 import { PrimarySearchBar } from "../../misc/searchBars";
+import useInventory from "../useInventory";
 
 interface Props {
     user: Cookie_User;
@@ -13,6 +14,8 @@ interface Props {
 export default function Main({user}:Props) {
 
     const [search, setSearch] = useState('')
+
+    const {categories, parts, loading} = useInventory(search)
 
     const isAdmin = useMemo(() => (
         user.roles.includes('President') || user.roles.includes('Operations Officer')

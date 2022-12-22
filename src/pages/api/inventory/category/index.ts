@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getCategoryNamesFromParent, getInitialCategoryNames } from "../../../../database/operations/category";
+import { getInitialInventoryData } from "../../../../database/operations/inventory";
 import { verifyUser } from "../../../../utils/auth";
 
 async function categorySelect(query:NextApiRequest['query']) {
@@ -8,6 +9,17 @@ async function categorySelect(query:NextApiRequest['query']) {
         return await getInitialCategoryNames(query.initialSelected as string)
     }
     return await getCategoryNamesFromParent(query.parent as string)
+}
+
+async function inventory(query:NextApiRequest['query']) {
+    console.log('query', query)
+    console.log('testlist', query['testList[]'])
+
+    if (query.parentCategory === '/') {
+        return await getInitialInventoryData()
+    }
+
+    return null
 }
 
 export default verifyUser(async function Category(req:NextApiRequest, res:NextApiResponse) {
@@ -21,7 +33,12 @@ export default verifyUser(async function Category(req:NextApiRequest, res:NextAp
             return res.status(200).json(data)
         }
 
-        return res.status(200).json({msg: 'the data'})
+        if (mode === 'inventory') {
+            const data = await inventory(req.query)
+            return res.status(200).json(data)
+        }
+
+        return res.status(400).json({msg: 'Invalid mode.'})
     } catch (e) {
         console.log(e)
         return res.status(500).json({msg: 'Internal Server Error'})
