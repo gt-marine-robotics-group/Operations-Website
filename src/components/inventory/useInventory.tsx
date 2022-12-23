@@ -23,6 +23,11 @@ export interface PartBank {
     };
 }
 
+interface SearchBank {
+    part: string[];
+    category: string[];
+}
+
 export default function useInventory(search:string) {
 
     const [loading, setLoading] = useState(false)
@@ -33,7 +38,7 @@ export default function useInventory(search:string) {
     const [searchedCategories, setSearchedCategories] = useState<CategoryBank>({})
     const [searchedParts, setSearchedParts] = useState<PartBank>({})
 
-    const [prevSearchs, setPrevSearches] = useState({part: [], category: []})
+    const [prevSearches, setPrevSearches] = useState<SearchBank>({part: [], category: []})
 
     const loadInitialData = useCallback(async () => {
         setLoading(true)
@@ -120,8 +125,40 @@ export default function useInventory(search:string) {
         }
     }, [])
 
+    const findCategoryAndPartMatches = (categoryTerms:string[], 
+        partTerms:string[]) => {
+        
+        const matches:SearchBank = {category: [], part: []}
+
+        Object.keys(categoryBank).forEach(id => {
+            if (!('search' in categoryBank[id])) return
+            for (const term of categoryTerms) {
+                if (categoryBank[id].search.includes(term)) {
+                    matches.category.push(id)
+                    return
+                }
+            }
+        })
+        Object.keys(partBank).forEach(id => {
+            for (const term of partTerms) {
+                if (partBank[id].search.includes(term)) {
+                    matches.part.push(id)
+                    return
+                }
+            }
+        })
+
+        return matches
+    }
+
     const searchInventory = async () => {
         if (loading) return
+
+        if (!search) {
+            setSearchedCategories(categoryBank)
+            setSearchedParts(partBank)
+            return
+        }
 
         // setLoading(true)
 
@@ -156,6 +193,15 @@ export default function useInventory(search:string) {
 
         console.log('partSearch', partSearch)
         console.log('categorySearch', categorySearch)
+
+        const unsearchedPartTerms = partSearch.filter(term => (
+            !prevSearches.part.includes(term)
+        ))
+        const unsearchedCategoryTerms = categorySearch.filter(term => (
+            !prevSearches.category.includes(term)
+        ))
+
+        console.log('matches', findCategoryAndPartMatches(categorySearch, partSearch))
     }
 
     useEffect(() => {
