@@ -69,7 +69,7 @@ export default function useInventory(search:string) {
                 catCopy[category.ref['@ref'].id] = {
                     name: category.data.name,
                     search: category.data.search,
-                    children: category.data.children.split(','),
+                    children: category.data.children ? category.data.children.split(',') : [],
                     parts: category.data.parts.map((p:C_Ref) => p['@ref'].id),
                     parent: '/'
                 }
@@ -125,6 +125,13 @@ export default function useInventory(search:string) {
         setLoading(true)
 
         // check if already in session storage
+        const sessionCategoryData = sessionStorage.getItem('categoryData')
+        const sessionPartData = sessionStorage.getItem('partData')
+
+        const parsedCategoryData = sessionCategoryData && 
+            JSON.parse(sessionCategoryData) as CategoryBank
+        const parsedPartData = sessionPartData &&
+            JSON.parse(sessionPartData) as PartBank
 
         try {
             const {data} = await axios.get('/api/inventory/category', {
@@ -136,6 +143,46 @@ export default function useInventory(search:string) {
             })
 
             console.log('data', data)
+
+            const catBankCopy = {...categoryBank}
+            const catSearchedCopy = {...searchedCategories}
+
+            for (const category of data.categories) {
+                const info = {
+                    name: category.data.name,
+                    search: category.data.search,
+                    children: category.data.children ? category.data.children.split(',') : [],
+                    parts: category.data.parts.map((p:C_Ref) => p['@ref'].id),
+                    parent: id
+                }
+                catBankCopy[category.ref['@ref'].id] = info
+                catSearchedCopy[category.ref['@ref'].id] = info
+            }
+
+            const partBankCopy = {...partBank}
+            const partSearchedCopy = {...searchedParts}
+
+            for (const part of data.parts) {
+                if (parsedPartData && part[0] in parsedPartData) {
+                    partBankCopy[part[0]] = parsedPartData[part[0]]
+                    partSearchedCopy[part[0]] = parsedPartData[part[0]]
+                } else {
+                    const info = {
+                        name: part[1],
+                        search: (part[1] as string).split(' ')
+                            .filter(v => v).map(v => v.toLowerCase()),
+                        category: id
+                    }
+                    partBankCopy[part[0]] = info
+                    partSearchedCopy[part[0]] = info
+                }
+            }
+
+            setCategoryBank(catBankCopy)
+            setSearchedCategories(catSearchedCopy)
+            setPartBank(partBankCopy)
+            setSearchedParts(partSearchedCopy)
+            setLoading(false)
         } catch (e) {
             console.log(e)
         }

@@ -49,7 +49,7 @@ export default function CategoryForm({initialCategory}:Props) {
                     data: {data: {
                         name: values.name,
                         parent: parentCategory,
-                        children: [],
+                        children: '',
                         parts: [],
                         search,
                     }, 
