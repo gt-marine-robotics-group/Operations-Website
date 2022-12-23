@@ -124,14 +124,28 @@ export default function useInventory(search:string) {
 
         setLoading(true)
 
-        // check if already in session storage
-        const sessionCategoryData = sessionStorage.getItem('categoryData')
-        const sessionPartData = sessionStorage.getItem('partData')
+        const firstChild = categoryBank[id].children[0]
+        const firstPart = categoryBank[id].parts[0]
 
-        const parsedCategoryData = sessionCategoryData && 
-            JSON.parse(sessionCategoryData) as CategoryBank
-        const parsedPartData = sessionPartData &&
-            JSON.parse(sessionPartData) as PartBank
+        const containsPopulatedChildren = !firstChild || 
+            ('parts' in (categoryBank[firstChild] || {}))
+        const containsPopulatedParts = !firstPart || partBank[firstPart]
+
+        if (containsPopulatedChildren && containsPopulatedParts) {
+            console.log('using bank')
+            const catSearchedCopy = {...searchedCategories}
+            for (const catId of categoryBank[id].children) {
+                catSearchedCopy[catId] = categoryBank[catId]
+            }
+            const partSearchedCopy = {...searchedParts}
+            for (const partId of categoryBank[id].parts) {
+                partSearchedCopy[partId] = partBank[partId]
+            }
+            setSearchedCategories(catSearchedCopy)
+            setSearchedParts(partSearchedCopy)
+            setLoading(false)
+            return
+        }
 
         try {
             const {data} = await axios.get('/api/inventory/category', {
@@ -163,9 +177,8 @@ export default function useInventory(search:string) {
             const partSearchedCopy = {...searchedParts}
 
             for (const part of data.parts) {
-                if (parsedPartData && part[0] in parsedPartData) {
-                    partBankCopy[part[0]] = parsedPartData[part[0]]
-                    partSearchedCopy[part[0]] = parsedPartData[part[0]]
+                if (part[0] in partBank) {
+                    partSearchedCopy[part[0]] = partBank[part[0]]
                 } else {
                     const info = {
                         name: part[1],
