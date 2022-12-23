@@ -44,3 +44,26 @@ export async function getInventoryDataFromIds(categoryId:string,
         }
     ) as {categories: S_Category[], parts: [string,string][]}
 }
+
+export async function searchInventory(partTerms:string[], categoryTerms:string[],
+    categorySkipList:string[]) {
+
+    const partMatches = partTerms.map(term => q.Match(
+        q.Index('parts_by_search_w_id_and_name'), term
+    ))
+    
+    return await client.query(
+        q.Let(
+            {
+                parts: q.Paginate(
+                    q.Union(
+                        ...partMatches
+                    )
+                )
+            },
+            {
+                parts: q.Var('parts')
+            }
+        )
+    )
+}

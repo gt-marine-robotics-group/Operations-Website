@@ -33,6 +33,8 @@ export default function useInventory(search:string) {
     const [searchedCategories, setSearchedCategories] = useState<CategoryBank>({})
     const [searchedParts, setSearchedParts] = useState<PartBank>({})
 
+    const [prevSearchs, setPrevSearches] = useState({part: [], category: []})
+
     const loadInitialData = useCallback(async () => {
         setLoading(true)
         const sessionCategoryData = sessionStorage.getItem('categoryData')
@@ -118,6 +120,44 @@ export default function useInventory(search:string) {
         }
     }, [])
 
+    const searchInventory = async () => {
+        if (loading) return
+
+        // setLoading(true)
+
+        const partSearch = []
+        const categorySearch = []
+        let word = ''
+        let pastColon = false
+        for (let i = 0; i < search.length; ++i) {
+            const char = search[i]
+            if (char === ' ') {
+                if (word) {
+                    if (pastColon) categorySearch.push(word)
+                    else partSearch.push(word)
+                    word = ''
+                }
+                continue
+            }
+            if (char === ':') {
+                if (word) {
+                    partSearch.push(word)
+                    word = ''
+                }
+                pastColon = true
+                continue
+            }
+            word += char.toLowerCase()
+        }
+        if (word) {
+            if (pastColon) categorySearch.push(word)
+            else partSearch.push(word)
+        }
+
+        console.log('partSearch', partSearch)
+        console.log('categorySearch', categorySearch)
+    }
+
     useEffect(() => {
 
         if (loading) return
@@ -127,7 +167,7 @@ export default function useInventory(search:string) {
             return
         }
 
-        // search for stuff
+        searchInventory()
 
     }, [search])
 
