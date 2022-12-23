@@ -148,6 +148,7 @@ export default function useInventory(search:string) {
         }
 
         try {
+            console.log('categoryChildIds', categoryBank[id].children)
             const {data} = await axios.get('/api/inventory/category', {
                 params: {
                     mode: 'inventory',

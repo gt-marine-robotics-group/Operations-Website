@@ -16,10 +16,15 @@ async function categorySelect(query:NextApiRequest['query']) {
 
 async function inventory(query:NextApiRequest['query']) {
     console.log('query', query)
-    console.log('testlist', query['testList[]'])
 
     if (query.parentCategory === '/') {
         return await getInitialInventoryData()
+    }
+
+    if (typeof(query['categoryChildIds[]']) === 'string') {
+        query['categoryChildIds[]'] = [query['categoryChildIds[]']]
+    } else if (!('categoryChildIds[]' in query)) {
+        query['categoryChildIds[]'] = []
     }
 
     return await getInventoryDataFromIds(query.parentCategory as string, 
