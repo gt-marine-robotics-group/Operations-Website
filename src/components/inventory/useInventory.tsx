@@ -151,6 +151,28 @@ export default function useInventory(search:string) {
         return matches
     }
 
+    const createUpdatedSearchResults = (matches:SearchBank) => {
+
+        const categories:CategoryBank = {'/': {
+            name: '',
+            search: [],
+            children: [],
+            parts: []
+        }}
+        const parts:PartBank = {}
+
+        matches.part.forEach(id => {
+            categories['/'].parts.push(id) 
+            parts[id] = partBank[id]
+        })
+        matches.category.forEach(id => {
+            categories['/'].children.push(id)
+            categories[id] = categoryBank[id]
+        })
+
+        return {categories, parts}
+    }
+
     const searchInventory = async () => {
         if (loading) return
 
@@ -202,6 +224,16 @@ export default function useInventory(search:string) {
         ))
 
         console.log('matches', findCategoryAndPartMatches(categorySearch, partSearch))
+
+        if (unsearchedCategoryTerms.length === 0 || unsearchedPartTerms.length === 0
+                || true) {
+            const matches = findCategoryAndPartMatches(categorySearch, partSearch)
+            const {categories, parts} = createUpdatedSearchResults(matches)
+            setSearchedCategories(categories)
+            setSearchedParts(parts)
+            setLoading(false)
+            return
+        }
     }
 
     useEffect(() => {
