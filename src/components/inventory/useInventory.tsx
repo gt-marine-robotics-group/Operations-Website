@@ -37,9 +37,9 @@ export default function useInventory(search:string) {
         setLoading(true)
         const sessionCategoryData = sessionStorage.getItem('categoryData')
         const sessionPartData = sessionStorage.getItem('partData')
+        const parsedCategoryData:CategoryBank = JSON.parse(sessionCategoryData || '{}')
+        const parsedPartData:PartBank = JSON.parse(sessionPartData || '{}')
         if (sessionCategoryData && sessionPartData) {
-            const parsedCategoryData:CategoryBank = JSON.parse(sessionCategoryData)
-            const parsedPartData:PartBank = JSON.parse(sessionPartData)
             if ('parts' in (parsedCategoryData['/'] || {})) {
                 console.log('using session storage')
                 setCategoryBank(parsedCategoryData)
@@ -78,6 +78,7 @@ export default function useInventory(search:string) {
             const pCopy:PartBank = {}
             for (const part of data.parts) {
                 catCopy['/'].parts.push(part[0])
+                if (part[0] in parsedPartData) continue
                 pCopy[part[0]] = {
                     name: part[1],
                     search: (part[1] as string).split(' ')
@@ -86,15 +87,26 @@ export default function useInventory(search:string) {
                 }
             }
 
-            if (sessionCategoryData) {
-                sessionStorage.setItem('categoryData', JSON.stringify({
-                    ...JSON.parse(sessionCategoryData),
-                    ...catCopy
-                }))
-            } else {
-                sessionStorage.setItem('categoryData', JSON.stringify(catCopy))
+            try {
+                if (sessionCategoryData) {
+                    sessionStorage.setItem('categoryData', JSON.stringify({
+                        ...parsedCategoryData,
+                        ...catCopy
+                    }))
+                } else {
+                    sessionStorage.setItem('categoryData', JSON.stringify(catCopy))
+                }
+                if (sessionPartData) {
+                    sessionStorage.setItem('partData', JSON.stringify({
+                        ...parsedPartData,
+                        ...pCopy
+                    }))
+                } else {
+                    sessionStorage.setItem('partData', JSON.stringify(pCopy))
+                }
+            } catch (e) {
+                console.log(e)
             }
-            sessionStorage.setItem('partData', JSON.stringify(pCopy))
 
             setCategoryBank(catCopy)
             setPartBank(pCopy)
@@ -148,7 +160,6 @@ export default function useInventory(search:string) {
         }
 
         try {
-            console.log('categoryChildIds', categoryBank[id].children)
             const {data} = await axios.get('/api/inventory/category', {
                 params: {
                     mode: 'inventory',
@@ -190,6 +201,13 @@ export default function useInventory(search:string) {
                     partBankCopy[part[0]] = info
                     partSearchedCopy[part[0]] = info
                 }
+            }
+
+            try {
+                sessionStorage.setItem('categoryData', JSON.stringify(catBankCopy))
+                sessionStorage.setItem('partData', JSON.stringify(partBankCopy))
+            } catch (e) {
+                console.log(e)
             }
 
             setCategoryBank(catBankCopy)
