@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { C_CategoryData } from "../../database/interfaces/Category";
-import { C_PartData } from "../../database/interfaces/Part";
 import axios from 'axios'
-import { C_Ref } from "../../database/interfaces/fauna";
-import { CategoryMap } from "./category/CategorySelect";
 
 export interface CategoryBank {
     [id:string]: {
@@ -273,9 +269,6 @@ export default function useInventory(search:string) {
             if (pastColon) categorySearch.push(word)
             else partSearch.push(word)
         }
-
-        console.log('partSearch', partSearch)
-        console.log('categorySearch', categorySearch)
 
         const unsearchedPartTerms = partSearch.filter(term => (
             !prevPartSearches.has(term)

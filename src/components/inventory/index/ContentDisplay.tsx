@@ -12,10 +12,11 @@ interface Props {
     loading: boolean;
     expandCategory: (id:string) => void;
     category: string;
+    startOpen:boolean
 }
 
 export default function ContentDisplay({categories, parts, loading, 
-    expandCategory, category}:Props) {
+    expandCategory, category, startOpen}:Props) {
     
     const [categoryOpen, setCategoryOpen] = useState(() => {
         const vals:{[id:string]: boolean} = {}
@@ -38,14 +39,25 @@ export default function ContentDisplay({categories, parts, loading,
             return
         }
         setCategoryOpen({...categoryOpen, [id]: true})
-        expandCategory(id)
+        if (!startOpen) {
+            expandCategory(id)
+        }
     }
 
     useMemo(() => {
-        const readyCopy = {...childrenReady}
-        let change = false
+        console.log('updating ready copy', category)
+        const readyCopy:{[id:string]: boolean} = {}
+        let valChange = false
+        let idChange = false
+        let sameCount = 0
         categories[category].children.forEach(id => {
-            if (!categoryOpen[id]) return
+            if (!(id in childrenReady)) {
+                idChange = true
+                readyCopy[id] = false
+            } else {
+                ++sameCount
+                readyCopy[id] = childrenReady[id]
+            }
             if (categoryOpen[id] && childrenReady[id]) return
 
             if (!(id in categories)) return
@@ -60,11 +72,18 @@ export default function ContentDisplay({categories, parts, loading,
             
             if (!(containsPopulatedChildren && containsParts)) return
 
-            change = true
+            valChange = true
             readyCopy[id] = true
         })
-        if (change) {
+        if (valChange || idChange || sameCount !== Object.keys(childrenReady).length) {
             setChildrenReady(readyCopy)
+        }
+        if (idChange || sameCount !== Object.keys(categoryOpen).length) {
+            const catOpenCopy:{[id:string]: boolean} = {}
+            categories[category].children.forEach(id => {
+                catOpenCopy[id] = startOpen
+            })
+            setCategoryOpen(catOpenCopy)
         }
     }, [categories, parts, loading])
 
@@ -97,7 +116,7 @@ export default function ContentDisplay({categories, parts, loading,
                                     <ContentDisplay categories={categories}
                                         parts={parts} loading={loading}
                                         expandCategory={expandCategory}
-                                        category={id} />}
+                                        category={id} startOpen={startOpen} />}
                             </Box>}
                         </Box>
                     </Paper>
