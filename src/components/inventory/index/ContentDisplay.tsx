@@ -88,9 +88,7 @@ export default function ContentDisplay({categories, parts, loading,
                                     </Grid>
                                     <Grid item>
                                         <Typography variant="h6">
-                                            {categories[id].name}{' '}
-                                            ({categories[id].parts.length + 
-                                                categories[id].children.length})
+                                            {categories[id].name}
                                         </Typography>
                                     </Grid>
                                 </Grid>

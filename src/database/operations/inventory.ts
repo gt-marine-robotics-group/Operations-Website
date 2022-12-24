@@ -2,20 +2,16 @@ import client from '../fauna'
 import { Expr, query as q } from 'faunadb'
 import { S_Category } from '../interfaces/Category'
 
-function getInventoryDataFromCategoryInnerQuery(categoryId:Expr|string) {
+function getInitialInventoryInnerQuery(categoryId:Expr|string) {
     
     return q.Let(
         {
-            categoryIds: q.Paginate(q.Match(q.Index('categories_by_parent_w_id'), 
-                categoryId)),
+            categories: q.Paginate(q.Match('all_categories_w_id_name_and_parent')),
             parts: q.Paginate(q.Match(q.Index('parts_by_category_w_id_and_name'), 
                 categoryId))
         },
         {
-            categories: q.Map(q.Var('categoryIds'), q.Lambda(
-                'id',
-                q.Get(q.Ref(q.Collection('categories'), q.Var('id')))
-            )),
+            categories: q.Select('data', q.Var('categories')),
             parts: q.Select('data', q.Var('parts'))
         }
     )
@@ -24,25 +20,20 @@ function getInventoryDataFromCategoryInnerQuery(categoryId:Expr|string) {
 export async function getInitialInventoryData() {
 
     return await client.query(
-        getInventoryDataFromCategoryInnerQuery('/')
-    ) as {categories: S_Category[], parts: [string,string][]}
+        getInitialInventoryInnerQuery('/')
+    ) as {categories: [string,string,string][], parts: [string,string][]}
 }
 
-export async function getInventoryDataFromIds(categoryId:string,
-    categoryChildrenIds:string[]) {
+export async function getInventoryDataFromIds(categoryId:string) {
 
     return await client.query(
         {
-            categories: q.Map(categoryChildrenIds, q.Lambda(
-                'id',
-                q.Get(q.Ref(q.Collection('categories'), q.Var('id')))
-            )),
             parts: q.Select('data', q.Paginate(q.Match(
                 q.Index('parts_by_category_w_id_and_name'), 
                 q.Ref(q.Collection('categories'), categoryId)
             )))
         }
-    ) as {categories: S_Category[], parts: [string,string][]}
+    ) as {parts: [string,string][]}
 }
 
 export async function searchInventory(partTerms:string[], categoryTerms:string[],

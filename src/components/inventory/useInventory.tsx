@@ -12,6 +12,7 @@ export interface CategoryBank {
         children: string[];
         parent?: string;
         parts: string[];
+        expanded: boolean;
     };
 }
 
@@ -65,20 +66,36 @@ export default function useInventory(search:string) {
                 }
             })
 
+            console.log('initial data', data)
+
             const catCopy:CategoryBank = {'/': {
                 name: '',
                 search: [],
                 children: [],
-                parts: []
+                parts: [],
+                expanded: true
             }}
-            for (const category of data.categories.data) {
-                catCopy['/'].children.push(category.ref['@ref'].id)
-                catCopy[category.ref['@ref'].id] = {
-                    name: category.data.name,
-                    search: category.data.search,
-                    children: category.data.children ? category.data.children.split(',') : [],
-                    parts: category.data.parts.map((p:C_Ref) => p['@ref'].id),
-                    parent: '/'
+            for (const category of data.categories) {
+                const parentId = typeof(category[2]) === 'string' ? category[2] :
+                    category[2]['@ref'].id
+                if (!(parentId in catCopy)) {
+                    catCopy[parentId] = {
+                        name: '', search: [], children: [category[0]], 
+                        parts: [], parent: '', expanded: false
+                    }
+                } else {
+                    catCopy[parentId].children.push(category[0])
+                }
+                const currChildren = category[0] in catCopy ? 
+                    catCopy[category[0]].children : []
+                catCopy[category[0]] = {
+                    name: category[1], 
+                    search: (category[1] as string).split(' ')
+                        .filter(v => v).map(v => v.toLowerCase()),
+                    children: currChildren,
+                    parts: [],
+                    parent: parentId,
+                    expanded: false
                 }
             }
 
@@ -254,14 +271,7 @@ export default function useInventory(search:string) {
 
         setLoading(true)
 
-        const firstChild = categoryBank[id].children[0]
-        const firstPart = categoryBank[id].parts[0]
-
-        const containsPopulatedChildren = !firstChild || 
-            ('parts' in (categoryBank[firstChild] || {}))
-        const containsPopulatedParts = !firstPart || partBank[firstPart]
-
-        if (containsPopulatedChildren && containsPopulatedParts) {
+        if (categoryBank[id].expanded) {
             console.log('using bank')
             const catSearchedCopy = {...searchedCategories}
             for (const catId of categoryBank[id].children) {
@@ -282,7 +292,7 @@ export default function useInventory(search:string) {
                 params: {
                     mode: 'inventory',
                     parentCategory: id,
-                    categoryChildIds: categoryBank[id].children
+                    // categoryChildIds: categoryBank[id].children
                 }
             })
 
@@ -290,17 +300,8 @@ export default function useInventory(search:string) {
 
             const catBankCopy = {...categoryBank}
             const catSearchedCopy = {...searchedCategories}
-
-            for (const category of data.categories) {
-                const info = {
-                    name: category.data.name,
-                    search: category.data.search,
-                    children: category.data.children ? category.data.children.split(',') : [],
-                    parts: category.data.parts.map((p:C_Ref) => p['@ref'].id),
-                    parent: id
-                }
-                catBankCopy[category.ref['@ref'].id] = info
-                catSearchedCopy[category.ref['@ref'].id] = info
+            for (const catId of categoryBank[id].children) {
+                catSearchedCopy[catId] = categoryBank[catId]
             }
 
             const partBankCopy = {...partBank}
@@ -319,7 +320,12 @@ export default function useInventory(search:string) {
                     partBankCopy[part[0]] = info
                     partSearchedCopy[part[0]] = info
                 }
+                if (!catBankCopy[id].parts.includes(part[0])) {
+                    catBankCopy[id].parts.push(part[0])
+                }
             }
+
+            catBankCopy[id].expanded = true
 
             try {
                 sessionStorage.setItem('categoryData', JSON.stringify(catBankCopy))
