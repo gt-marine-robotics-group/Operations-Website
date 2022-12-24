@@ -114,6 +114,7 @@ export default function useInventory(search:string) {
                     category: '/'
                 }
             }
+            console.log('pCopy', pCopy)
 
             try {
                 if (sessionCategoryData) {

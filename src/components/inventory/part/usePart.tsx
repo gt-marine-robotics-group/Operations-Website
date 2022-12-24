@@ -4,7 +4,7 @@ import axios from 'axios'
 import { useRouter } from 'next/router'
 import { PartBank } from "../useInventory";
 
-interface PopulatedPart extends PartData {
+export interface PopulatedPart extends PartData {
     category: string;
 }
 
@@ -12,74 +12,138 @@ interface PopulatedPartBank {
     [id:string]: PopulatedPart | PartBank[string];
 }
 
+interface LoadPartInfoProps {
+    sessionPartData?: PopulatedPartBank;
+    sessionProjectData?: {
+        id: string;
+        name: string;
+    }[];
+}
+
+interface LoadPartResponseData {
+    part: C_Part;
+    projects?: {
+        data: [string, string][];
+    };
+}
+
+interface ProjectData {
+    id: string;
+    name: string;
+}
+
 export default function usePart() {
 
     const router = useRouter()
 
     const [part, setPart] = useState<PopulatedPart|null>(null)
+    const [projects, setProjects] = useState<ProjectData[]>([])
     const [partName, setPartName] = useState('')
+    const [error, setError] = useState(false)
 
     useEffect(() => {
+        console.log('CALLING THE HOOK')
         const id = router.query.id
         if (!(typeof(id) === 'string')) return
 
-        const loadPartInfo = async (parsedData?:PopulatedPartBank) => {
+        const loadPartInfo = async ({sessionPartData, sessionProjectData}
+            :LoadPartInfoProps) => {
             try {
-                const {data} = await axios.get(`/api/inventory/part/${id}`, {
-                    retry: 3
-                })
+                const {data} = await axios.get<LoadPartResponseData>(
+                    `/api/inventory/part/${id}`, {
+                        params: {
+                            loadProjects: !Boolean(sessionProjectData)
+                        },
+                        retry: 3
+                    }
+                )
                 console.log('data', data)
 
-                const partData = {
-                    ...data.data,
-                    category: typeof(data.data.category) === 'string' ? 
-                        data.data.category :
-                        data.data.category['@ref'].id
+                if (!sessionProjectData && !data.projects) {
+                    throw new Error('Failed to load projects')
                 }
 
-                if (parsedData) {
+                const partData = {
+                    ...data.part.data,
+                    category: typeof(data.part.data.category) === 'string' ? 
+                        data.part.data.category :
+                        data.part.data.category['@ref'].id
+                }
+
+                if (sessionPartData) {
+                    console.log('not overriding')
+                    console.log('sessionPartData', sessionPartData)
                     sessionStorage.setItem('partData', JSON.stringify({
-                        ...parsedData,
-                        [data.ref['@ref'].id]: partData
+                        ...sessionPartData,
+                        [data.part.ref['@ref'].id]: partData
                     }))
                 } else {
                     sessionStorage.setItem('partData', JSON.stringify({
-                        [data.ref['@ref'].id]: partData
+                        [data.part.ref['@ref'].id]: partData
                     }))
+                }
+                console.log('partSessionStorage', JSON.parse(sessionStorage.getItem('partData') || '{}'))
+
+                const projectsData = sessionProjectData || 
+                    data.projects?.data.map(info => (
+                        {id: info[0], name: info[1]}
+                    ))
+                if (!sessionProjectData) {
+                    sessionStorage.setItem('projectIdAndNames', JSON.stringify(
+                        projectsData
+                    ))
                 }
 
                 if (!partName) {
                     setPartName(partData.name)
                 }
                 setPart(partData)
+                setProjects(projectsData as ProjectData[])
             } catch (e) {
                 console.log(e)
+                setError(true)
             }
         }
         try {
-            const data = sessionStorage.getItem('partData') 
-            if (data) {
-                const parsedData = JSON.parse(data)
-                if (id in parsedData) {
-                    setPartName(parsedData[id].name)
-                    if ('available' in parsedData[id]) {
-                        setPart(parsedData[id])
-                        return
-                    } 
-                }
-                loadPartInfo(parsedData)
+            const partData = sessionStorage.getItem('partData') 
+            const projectData = sessionStorage.getItem('projectIdAndNames')
+            const parsedPartData = JSON.parse(partData || '{}')
+            const parsedProjectData = JSON.parse(projectData || '{}')
+            if (id in parsedPartData) {
+                setPartName(parsedPartData[id].name)
+            }
+            if (projectData && 'available' in parsedPartData[id]) {
+                console.log('using session storage')
+                setProjects(parsedProjectData)
+                setPart(parsedPartData[id])
                 return
             }
+            loadPartInfo({sessionPartData: partData ? parsedPartData : undefined, 
+                sessionProjectData: projectData ? parsedProjectData : undefined})
+            return
+            // if (partData) {
+            //     const parsedData = JSON.parse(data)
+            //     if (id in parsedData) {
+            //         setPartName(parsedData[id].name)
+            //         if ('available' in parsedData[id]) {
+            //             setPart(parsedData[id])
+            //             return
+            //         } 
+            //     }
+            //     loadPartInfo(parsedData)
+            //     return
+            // }
         } catch (e) {
             console.log(e)
         }
-        loadPartInfo()
-    }, [router.query])
+        loadPartInfo({})
+    }, [])
 
     console.log('part', part)
     console.log('partName', partName)
+    console.log('projects', projects)
 
     return {
-        part, partName
+        part, partName, error, projects
     }
 }

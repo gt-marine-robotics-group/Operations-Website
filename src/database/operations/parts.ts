@@ -35,6 +35,16 @@ export async function getPart(id:string) {
     ) as S_Part
 }
 
+export async function getPartAndProjects(id:string) {
+
+    return await client.query(
+        {
+            part: q.Get(q.Ref(q.Collection('parts'), id)),
+            projects: q.Paginate(q.Match(q.Index('all_projects_w_id_and_name')))
+        }
+    ) as {part: S_Part, projects: {data: [string,string][]}}
+}
+
 export async function getUpdatePartInfo(id:string) {
 
     return await client.query(
