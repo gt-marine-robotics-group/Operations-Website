@@ -37,7 +37,6 @@ export default function useInventory(search:string) {
     const [partBank, setPartBank] = useState<PartBank>({})
 
     const [searchedCategories, setSearchedCategories] = useState<CategoryBank>({})
-    const [searchedParts, setSearchedParts] = useState<PartBank>({})
 
     const [prevSearches, setPrevSearches] = useState<SearchBank>({part: [], category: []})
 
@@ -53,7 +52,6 @@ export default function useInventory(search:string) {
                 setCategoryBank(parsedCategoryData)
                 setPartBank(parsedPartData)
                 setSearchedCategories(parsedCategoryData)
-                setSearchedParts(parsedPartData)
                 setLoading(false)
                 return
             }
@@ -135,7 +133,6 @@ export default function useInventory(search:string) {
             setCategoryBank(catCopy)
             setPartBank(pCopy)
             setSearchedCategories(catCopy)
-            setSearchedParts(pCopy)
             setLoading(false)
         } catch (e) {
             console.log(e)
@@ -174,20 +171,19 @@ export default function useInventory(search:string) {
             name: '',
             search: [],
             children: [],
-            parts: []
+            parts: [],
+            expanded: true
         }}
-        const parts:PartBank = {}
 
         matches.part.forEach(id => {
             categories['/'].parts.push(id) 
-            parts[id] = partBank[id]
         })
         matches.category.forEach(id => {
             categories['/'].children.push(id)
             categories[id] = categoryBank[id]
         })
 
-        return {categories, parts}
+        return categories
     }
 
     const searchInventory = async () => {
@@ -195,7 +191,6 @@ export default function useInventory(search:string) {
 
         if (!search) {
             setSearchedCategories(categoryBank)
-            setSearchedParts(partBank)
             return
         }
 
@@ -245,9 +240,8 @@ export default function useInventory(search:string) {
         if (unsearchedCategoryTerms.length === 0 || unsearchedPartTerms.length === 0
                 || true) {
             const matches = findCategoryAndPartMatches(categorySearch, partSearch)
-            const {categories, parts} = createUpdatedSearchResults(matches)
+            const categories = createUpdatedSearchResults(matches)
             setSearchedCategories(categories)
-            setSearchedParts(parts)
             setLoading(false)
             return
         }
@@ -277,12 +271,7 @@ export default function useInventory(search:string) {
             for (const catId of categoryBank[id].children) {
                 catSearchedCopy[catId] = categoryBank[catId]
             }
-            const partSearchedCopy = {...searchedParts}
-            for (const partId of categoryBank[id].parts) {
-                partSearchedCopy[partId] = partBank[partId]
-            }
             setSearchedCategories(catSearchedCopy)
-            setSearchedParts(partSearchedCopy)
             setLoading(false)
             return
         }
@@ -292,7 +281,6 @@ export default function useInventory(search:string) {
                 params: {
                     mode: 'inventory',
                     parentCategory: id,
-                    // categoryChildIds: categoryBank[id].children
                 }
             })
 
@@ -305,12 +293,9 @@ export default function useInventory(search:string) {
             }
 
             const partBankCopy = {...partBank}
-            const partSearchedCopy = {...searchedParts}
 
             for (const part of data.parts) {
-                if (part[0] in partBank) {
-                    partSearchedCopy[part[0]] = partBank[part[0]]
-                } else {
+                if (!(part[0] in partBank)) {
                     const info = {
                         name: part[1],
                         search: (part[1] as string).split(' ')
@@ -318,7 +303,6 @@ export default function useInventory(search:string) {
                         category: id
                     }
                     partBankCopy[part[0]] = info
-                    partSearchedCopy[part[0]] = info
                 }
                 if (!catBankCopy[id].parts.includes(part[0])) {
                     catBankCopy[id].parts.push(part[0])
@@ -337,7 +321,6 @@ export default function useInventory(search:string) {
             setCategoryBank(catBankCopy)
             setSearchedCategories(catSearchedCopy)
             setPartBank(partBankCopy)
-            setSearchedParts(partSearchedCopy)
             setLoading(false)
         } catch (e) {
             console.log(e)
@@ -349,7 +332,8 @@ export default function useInventory(search:string) {
 
     return {
         categories: searchedCategories,
-        parts: searchedParts,
+        // parts: searchedParts,
+        parts: partBank,
         loading,
         expandCategory
     }
