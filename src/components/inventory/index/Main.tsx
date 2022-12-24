@@ -53,7 +53,7 @@ export default function Main({user}:Props) {
                     {'/' in categories && <ContentDisplay categories={categories}
                         parts={parts} loading={loading} 
                         expandCategory={expandCategory} category='/'
-                        startOpen={Boolean(search)} />}
+                        startOpen={Boolean(search)} isAdmin={isAdmin} />}
                 </Box>
             </Container>
         </Box>

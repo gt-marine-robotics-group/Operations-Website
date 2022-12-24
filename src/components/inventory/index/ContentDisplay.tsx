@@ -5,6 +5,8 @@ import { CategoryBank, PartBank } from "../useInventory";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { PrimaryLink } from "../../misc/links";
+import EditIcon from '@mui/icons-material/Edit';
+import Link from "next/link";
 
 interface Props {
     categories: CategoryBank;
@@ -12,11 +14,12 @@ interface Props {
     loading: boolean;
     expandCategory: (id:string) => void;
     category: string;
-    startOpen:boolean
+    startOpen:boolean;
+    isAdmin: boolean;
 }
 
 export default function ContentDisplay({categories, parts, loading, 
-    expandCategory, category, startOpen}:Props) {
+    expandCategory, category, startOpen, isAdmin}:Props) {
     
     const [categoryOpen, setCategoryOpen] = useState(() => {
         const vals:{[id:string]: boolean} = {}
@@ -45,7 +48,6 @@ export default function ContentDisplay({categories, parts, loading,
     }
 
     useMemo(() => {
-        console.log('updating ready copy', category)
         const readyCopy:{[id:string]: boolean} = {}
         let valChange = false
         let idChange = false
@@ -94,7 +96,7 @@ export default function ContentDisplay({categories, parts, loading,
                     <Paper elevation={3}>
                         <Box py={1}>
                             <Box>
-                                <Grid container alignItems="center">
+                                <Grid container alignItems="center" wrap="nowrap">
                                     <Grid item>
                                         <BluePrimaryIconButton disabled={loading}
                                             onClick={() => openCategory(id)}>
@@ -108,6 +110,17 @@ export default function ContentDisplay({categories, parts, loading,
                                             {categories[id].name}
                                         </Typography>
                                     </Grid>
+                                    {isAdmin && <>
+                                        <Grid item flex={1} />
+                                        <Grid item>
+                                            <Link href="/inventory/category/[id]/update"
+                                                as={`/inventory/category/${id}/update`} >
+                                                <BluePrimaryIconButton>
+                                                    <EditIcon />     
+                                                </BluePrimaryIconButton> 
+                                            </Link>
+                                        </Grid>
+                                    </>}
                                 </Grid>
                             </Box>
                             {categoryOpen[id] && <Box pl={5}>
@@ -116,7 +129,8 @@ export default function ContentDisplay({categories, parts, loading,
                                     <ContentDisplay categories={categories}
                                         parts={parts} loading={loading}
                                         expandCategory={expandCategory}
-                                        category={id} startOpen={startOpen} />}
+                                        category={id} startOpen={startOpen}
+                                        isAdmin={isAdmin} />}
                             </Box>}
                         </Box>
                     </Paper>
