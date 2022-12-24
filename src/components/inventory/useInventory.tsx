@@ -165,7 +165,8 @@ export default function useInventory(search:string) {
         return matches
     }
 
-    const createUpdatedSearchResults = (matches:SearchBank) => {
+    const createUpdatedSearchResults = (matches:SearchBank, 
+        filterCategories:boolean) => {
 
         const categories:CategoryBank = {'/': {
             name: '',
@@ -176,11 +177,44 @@ export default function useInventory(search:string) {
         }}
 
         matches.part.forEach(id => {
-            categories['/'].parts.push(id) 
-        })
-        matches.category.forEach(id => {
-            categories['/'].children.push(id)
-            categories[id] = categoryBank[id]
+            const ids = new Set()
+            const names = []
+            let curr:string|undefined = partBank[id].category
+            if (partBank[id].category in categories) {
+                categories[partBank[id].category].parts.push(id)
+                return
+            }
+            while (curr) {
+                names.push(categoryBank[curr].name)
+                ids.add(curr)
+                curr = categoryBank[curr].parent
+            }
+            if (!filterCategories) {
+                categories[partBank[id].category] = {
+                    name: names.reverse().slice(1).join(' / '),
+                    search: [],
+                    children: [],
+                    parent: '/',
+                    parts: [id],
+                    expanded: false
+                }
+                categories['/'].children.push(partBank[id].category)
+                return
+            }
+            for (const categoryId of matches.category) {
+                if (!ids.has(categoryId)) continue
+                categories[partBank[id].category] = {
+                    name: names.reverse().slice(1).join(' / '),
+                    search: [],
+                    children: [],
+                    parent: '/',
+                    parts: [id],
+                    expanded: false
+                }
+                categories['/'].children.push(partBank[id].category)
+                return
+            }
+
         })
 
         return categories
@@ -240,7 +274,8 @@ export default function useInventory(search:string) {
         if (unsearchedCategoryTerms.length === 0 || unsearchedPartTerms.length === 0
                 || true) {
             const matches = findCategoryAndPartMatches(categorySearch, partSearch)
-            const categories = createUpdatedSearchResults(matches)
+            const categories = createUpdatedSearchResults(matches, 
+                categorySearch.length > 0)
             setSearchedCategories(categories)
             setLoading(false)
             return
