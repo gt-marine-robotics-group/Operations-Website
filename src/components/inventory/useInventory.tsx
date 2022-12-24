@@ -181,6 +181,9 @@ export default function useInventory(search:string) {
             const names = []
             let curr:string|undefined = partBank[id].category
             if (partBank[id].category in categories) {
+                if (partBank[id].category === '/' && filterCategories) {
+                    return
+                }
                 categories[partBank[id].category].parts.push(id)
                 return
             }
