@@ -103,10 +103,10 @@ export default function useInventory(search:string) {
                 }
             }
 
-            const pCopy:PartBank = {}
+            const pCopy:PartBank = {...parsedPartData}
             for (const part of data.parts) {
                 catCopy['/'].parts.push(part[0])
-                if (part[0] in parsedPartData) continue
+                if (part[0] in parsedPartData) {}
                 pCopy[part[0]] = {
                     name: part[1],
                     search: (part[1] as string).split(' ')
@@ -114,7 +114,6 @@ export default function useInventory(search:string) {
                     category: '/'
                 }
             }
-            console.log('pCopy', pCopy)
 
             try {
                 if (sessionCategoryData) {

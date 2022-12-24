@@ -42,7 +42,6 @@ export default function usePart() {
     const [error, setError] = useState(false)
 
     useEffect(() => {
-        console.log('CALLING THE HOOK')
         const id = router.query.id
         if (!(typeof(id) === 'string')) return
 
@@ -71,7 +70,6 @@ export default function usePart() {
                 }
 
                 if (sessionPartData) {
-                    console.log('not overriding')
                     console.log('sessionPartData', sessionPartData)
                     sessionStorage.setItem('partData', JSON.stringify({
                         ...sessionPartData,
@@ -82,7 +80,6 @@ export default function usePart() {
                         [data.part.ref['@ref'].id]: partData
                     }))
                 }
-                console.log('partSessionStorage', JSON.parse(sessionStorage.getItem('partData') || '{}'))
 
                 const projectsData = sessionProjectData || 
                     data.projects?.data.map(info => (
@@ -121,18 +118,6 @@ export default function usePart() {
             loadPartInfo({sessionPartData: partData ? parsedPartData : undefined, 
                 sessionProjectData: projectData ? parsedProjectData : undefined})
             return
-            // if (partData) {
-            //     const parsedData = JSON.parse(data)
-            //     if (id in parsedData) {
-            //         setPartName(parsedData[id].name)
-            //         if ('available' in parsedData[id]) {
-            //             setPart(parsedData[id])
-            //             return
-            //         } 
-            //     }
-            //     loadPartInfo(parsedData)
-            //     return
-            // }
         } catch (e) {
             console.log(e)
         }
