@@ -138,7 +138,8 @@ export default function ContentDisplay({categories, parts, loading,
             ))}        
             {categories[category].parts.map(id => (
                 <Box my={3} key={id}>
-                    <PrimaryLink href="/" variant="h6">
+                    <PrimaryLink href="/inventory/part/[id]" 
+                        as={`/inventory/part/${id}`} variant="h6">
                         {parts[id].name}
                     </PrimaryLink>
                 </Box>

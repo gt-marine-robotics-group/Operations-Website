@@ -28,6 +28,13 @@ export async function createPart(data:CreatePartData) {
     ) as S_Part
 }
 
+export async function getPart(id:string) {
+
+    return await client.query(
+        q.Get(q.Ref(q.Collection('parts'), id))
+    ) as S_Part
+}
+
 export async function getUpdatePartInfo(id:string) {
 
     return await client.query(
