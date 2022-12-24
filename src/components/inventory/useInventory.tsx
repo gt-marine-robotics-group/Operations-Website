@@ -24,7 +24,7 @@ export interface PartBank {
     };
 }
 
-interface SearchBank {
+interface SearchInput {
     part: string[];
     category: string[];
 }
@@ -38,7 +38,17 @@ export default function useInventory(search:string) {
 
     const [searchedCategories, setSearchedCategories] = useState<CategoryBank>({})
 
-    const [prevSearches, setPrevSearches] = useState<SearchBank>({part: [], category: []})
+    const [prevPartSearches, setPrevPartSearches] = useState(() => {
+        try {
+            const prev = sessionStorage.getItem('prevPartSearches')
+            if (!prev) {
+                return new Set<string>()
+            } 
+            return new Set<string>(JSON.parse(prev))
+        } catch (e) {
+            return new Set<string>()
+        }
+    })
 
     const loadInitialData = useCallback(async () => {
         setLoading(true)
@@ -142,31 +152,33 @@ export default function useInventory(search:string) {
     const findCategoryAndPartMatches = (categoryTerms:string[], 
         partTerms:string[]) => {
         
-        const matches:SearchBank = {category: [], part: []}
+        return new Promise<SearchInput>(resolve => {
+            const matches:SearchInput = {category: [], part: []}
 
-        Object.keys(categoryBank).forEach(id => {
-            if (!('search' in categoryBank[id])) return
-            for (const term of categoryTerms) {
-                if (categoryBank[id].search.includes(term)) {
-                    matches.category.push(id)
-                    return
+            Object.keys(categoryBank).forEach(id => {
+                if (!('search' in categoryBank[id])) return
+                for (const term of categoryTerms) {
+                    if (categoryBank[id].search.includes(term)) {
+                        matches.category.push(id)
+                        return
+                    }
                 }
-            }
-        })
-        Object.keys(partBank).forEach(id => {
-            for (const term of partTerms) {
-                if (partBank[id].search.includes(term)) {
-                    matches.part.push(id)
-                    return
+            })
+            Object.keys(partBank).forEach(id => {
+                for (const term of partTerms) {
+                    if (partBank[id].search.includes(term)) {
+                        matches.part.push(id)
+                        return
+                    }
                 }
-            }
-        })
+            })
 
-        return matches
+            resolve(matches)
+        })
     }
 
-    const createUpdatedSearchResults = (matches:SearchBank, 
-        filterCategories:boolean) => {
+    const createUpdatedSearchResults = (matches:SearchInput, 
+        filterCategories:boolean, partBank:PartBank) => {
 
         const categories:CategoryBank = {'/': {
             name: '',
@@ -231,7 +243,7 @@ export default function useInventory(search:string) {
             return
         }
 
-        // setLoading(true)
+        setLoading(true)
 
         const partSearch = []
         const categorySearch = []
@@ -266,22 +278,65 @@ export default function useInventory(search:string) {
         console.log('categorySearch', categorySearch)
 
         const unsearchedPartTerms = partSearch.filter(term => (
-            !prevSearches.part.includes(term)
-        ))
-        const unsearchedCategoryTerms = categorySearch.filter(term => (
-            !prevSearches.category.includes(term)
+            !prevPartSearches.has(term)
         ))
 
-        console.log('matches', findCategoryAndPartMatches(categorySearch, partSearch))
-
-        if (unsearchedCategoryTerms.length === 0 || unsearchedPartTerms.length === 0
-                || true) {
-            const matches = findCategoryAndPartMatches(categorySearch, partSearch)
+        if (unsearchedPartTerms.length === 0) {
+            const matches = await findCategoryAndPartMatches(categorySearch, partSearch)
             const categories = createUpdatedSearchResults(matches, 
-                categorySearch.length > 0)
+                categorySearch.length > 0, partBank)
             setSearchedCategories(categories)
             setLoading(false)
             return
+        }
+
+        try {
+
+            const [{data}, matches] = await Promise.all([
+                axios.get('/api/inventory/search', {
+                    params: {
+                        partSearch: unsearchedPartTerms
+                    },
+                    retry: 3
+                }),
+                findCategoryAndPartMatches(categorySearch, partSearch)
+            ])
+
+            console.log('api matches', data)
+
+            const partCopy = {...partBank}
+            for (const part of data) {
+                if (part[0] in partBank) continue
+                matches.part.push(part[0])
+                partCopy[part[0]] = {
+                    name: part[1],
+                    search: (part[1] as string).split(' ')
+                        .filter(v => v).map(v => v.toLowerCase()),
+                    category: typeof(part[2]) === 'string' ? part[2] :
+                        part[2]['@ref'].id
+                }
+            }
+
+            const prevSearchCopy = new Set(prevPartSearches)
+            unsearchedPartTerms.forEach(term => {
+                prevSearchCopy.add(term)
+            })
+
+            const categories = createUpdatedSearchResults(matches, 
+                categorySearch.length > 0, partCopy)
+            
+            try {
+                sessionStorage.setItem('partData', JSON.stringify(partCopy))
+                sessionStorage.setItem('prevPartSearches', 
+                    JSON.stringify(Array.from(prevSearchCopy)))
+            } catch (e) {}
+
+            setPartBank(partCopy)
+            setSearchedCategories(categories)
+            setPrevPartSearches(prevSearchCopy)
+            setLoading(false)
+        } catch (e) {
+            console.log(e)
         }
     }
 
@@ -321,8 +376,6 @@ export default function useInventory(search:string) {
                     parentCategory: id,
                 }
             })
-
-            console.log('data', data)
 
             const catBankCopy = {...categoryBank}
             const catSearchedCopy = {...searchedCategories}

@@ -21,14 +21,7 @@ async function inventory(query:NextApiRequest['query']) {
         return await getInitialInventoryData()
     }
 
-    // if (typeof(query['categoryChildIds[]']) === 'string') {
-    //     query['categoryChildIds[]'] = [query['categoryChildIds[]']]
-    // } else if (!('categoryChildIds[]' in query)) {
-    //     query['categoryChildIds[]'] = []
-    // }
-
     return await getInventoryDataFromIds(query.parentCategory as string)
-        // query['categoryChildIds[]'] as string[])
 }
 
 export default verifyUser(async function Category(req:NextApiRequest, res:NextApiResponse) {

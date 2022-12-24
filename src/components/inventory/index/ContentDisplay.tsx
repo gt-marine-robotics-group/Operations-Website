@@ -68,8 +68,6 @@ export default function ContentDisplay({categories, parts, loading,
         }
     }, [categories, parts, loading])
 
-    console.log(categoryOpen)
-
     return (
         <Box>
             {categories[category].children.map(id => (
