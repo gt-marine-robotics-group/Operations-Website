@@ -1,4 +1,5 @@
 import { Box, CircularProgress, Container, Grid, Paper, Typography } from "@mui/material";
+import { useMemo } from "react";
 import { Cookie_User } from "../../../../database/interfaces/User";
 import { PopulatedPart, ProjectData } from "../usePart";
 
@@ -10,6 +11,33 @@ interface Props {
 }
 
 export default function Main({user, part, projects, error}:Props) {
+
+    const categoryPath = useMemo(() => {
+        if (!part) return ''
+
+        let id = part.category
+
+        try {
+
+            const sessionCategories = sessionStorage.getItem('categoryData')
+
+            if (!sessionCategories) return ''
+
+            const parsedSessionCategories = JSON.parse(sessionCategories)
+
+            if (!(id in parsedSessionCategories)) return ''
+
+            const path = []
+            while (id && id in parsedSessionCategories)  {
+                path.push(parsedSessionCategories[id].name) 
+                id = parsedSessionCategories[id].parent
+            }
+
+            return path.reverse().join(' / ')
+        } catch (e) {
+            return ''
+        }
+    }, [part])
 
     return (
         <Box mt={6}>
@@ -39,6 +67,11 @@ export default function Main({user, part, projects, error}:Props) {
                                                 {part.name}
                                             </Typography>
                                         </Box>
+                                        {categoryPath && <Box>
+                                            <Typography variant="h6" color="#535040">
+                                                {categoryPath}
+                                            </Typography>
+                                        </Box>}
                                     </Box>}
                                 </Box>
                             </Grid>
