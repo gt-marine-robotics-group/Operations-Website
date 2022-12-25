@@ -27,7 +27,7 @@ interface LoadPartResponseData {
     };
 }
 
-interface ProjectData {
+export interface ProjectData {
     id: string;
     name: string;
 }

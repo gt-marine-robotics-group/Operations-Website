@@ -4,6 +4,7 @@ import usePart from "../../../../components/inventory/part/usePart";
 import MainHeader from "../../../../components/nav/MainHeader";
 import { Cookie_User } from "../../../../database/interfaces/User";
 import { getUser } from "../../../../utils/auth";
+import Main from '../../../../components/inventory/part/index/Main'
 
 interface Props {
     user: Cookie_User;
@@ -11,7 +12,7 @@ interface Props {
 
 export default function Part({user}:Props) {
 
-    const {part, partName, error} = usePart()
+    const {part, partName, projects, error} = usePart()
 
     return (
         <>
@@ -22,7 +23,7 @@ export default function Part({user}:Props) {
             </Head> 
             <div className="root-header-only">
                 <MainHeader loggedIn />
-                <div>main section</div>
+                <Main user={user} part={part} projects={projects} error={error} />
             </div>
         </>
     )
