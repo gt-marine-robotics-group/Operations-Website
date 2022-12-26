@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Container, Grid, Paper, Typography } from "@mui/material";
+import { Box, CircularProgress, Container, Grid, Paper, Typography, useTheme } from "@mui/material";
 import { useMemo } from "react";
 import { Cookie_User } from "../../../../database/interfaces/User";
 import { PopulatedPart, ProjectData } from "../usePart";
@@ -11,6 +11,8 @@ interface Props {
 }
 
 export default function Main({user, part, projects, error}:Props) {
+
+    const theme = useTheme()
 
     const categoryPath = useMemo(() => {
         if (!part) return ''
@@ -39,11 +41,32 @@ export default function Main({user, part, projects, error}:Props) {
         }
     }, [part])
 
+     const projectTemplateRow = useMemo(() => {
+        return `"${projects.map((_, i) => 'project' + i).join(' ')}"`
+     }, [projects])
+
+     const projectTemplateCol = useMemo(() => {
+        return projects.map((_, i) => `"project${i}"`).join(' ')
+     }, [projects])
+
+     const numInventoryCountColumns = useMemo(() => {
+        if (projects.length > 2) {
+            return projects.length
+        }
+        return 2
+     }, [projects]) 
+
+     const sortedProjects = useMemo(() => {
+        return projects.sort((a, b) => a.name.localeCompare(b.name))
+     }, [projects])
+
+     console.log(projectTemplateRow)
+
     return (
         <Box mt={6}>
             <Container maxWidth="lg">
                 <Paper elevation={3}>
-                    <Box minHeight={500} px={3} >
+                    <Box minHeight={500} mx={3} >
                         <Grid container spacing={3} justifyContent="center">
                             {part?.img && <Grid item>
                                 <Box height="max(100%, 500px)" width="min(400px, 95vw)"
@@ -72,6 +95,43 @@ export default function Main({user, part, projects, error}:Props) {
                                                 {categoryPath}
                                             </Typography>
                                         </Box>}
+                                        <Box display="grid" gridTemplateAreas={`
+                                            "available on-the-way ${Array(numInventoryCountColumns - 2).fill('.').join(' ')}"
+                                            ${projectTemplateRow}
+                                        `} gridTemplateColumns={`repeat(${numInventoryCountColumns}, 1fr)`}
+                                        gridTemplateRows="auto" maxWidth={200 * numInventoryCountColumns}
+                                        mt={3} gap={1}
+                                        sx={{
+                                            [theme.breakpoints.down('sm')]: {
+                                                gridTemplateColumns: 'auto',
+                                                gridTemplateAreas: `
+                                                    "available" "on-the-way"
+                                                    ${projectTemplateCol}
+                                                `,
+                                                gridTemplateRows: `repeat(${numInventoryCountColumns + 2}, 1fr)`
+                                            }
+                                        }} >
+                                            <Box gridArea="available">
+                                                <Typography variant="body1">
+                                                    Available: {part.available}
+                                                </Typography>
+                                            </Box>
+                                            <Box gridArea="on-the-way">
+                                                <Typography variant="body1">
+                                                    On the way: {part.onTheWay}
+                                                </Typography>
+                                            </Box>
+                                            {sortedProjects.map((project, i) => {
+                                                if (project.id in part.projects) {
+                                                    return <Box key={i} gridArea={`project${i}`}>
+                                                        <Typography variant="body1">
+                                                            {project.name}: {part.projects[project.id]}
+                                                        </Typography>
+                                                    </Box>
+                                                }
+                                                return null
+                                            })}
+                                        </Box>
                                     </Box>}
                                 </Box>
                             </Grid>
