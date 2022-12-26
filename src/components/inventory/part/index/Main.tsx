@@ -132,6 +132,11 @@ export default function Main({user, part, projects, error}:Props) {
                                                 return null
                                             })}
                                         </Box>
+                                        {part.note && <Box mt={3}>
+                                            <Typography variant="body1">
+                                                {part.note}
+                                            </Typography>
+                                        </Box>}
                                     </Box>}
                                 </Box>
                             </Grid>

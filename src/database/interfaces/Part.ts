@@ -4,7 +4,6 @@ export interface PartData {
     name: string;
     search: string[];
     available: number;
-    onBill: number;
     onTheWay: number;
     projects: {
         [name:string]: number;
