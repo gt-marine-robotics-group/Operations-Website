@@ -145,6 +145,9 @@ export default function PartForm({initialPart, initialCategoryParts}:Props) {
                     }
                 } catch (e) {}
             } else {
+                const prevCategoryId = typeof(initialPart.data.category) === 'string' ?
+                    initialPart.data.category :
+                    initialPart.data.category['@ref'].id
                 await axios({
                     method: 'POST',
                     url: `/api/inventory/part/${initialPart.ref['@ref'].id}/update`,
@@ -152,14 +155,45 @@ export default function PartForm({initialPart, initialCategoryParts}:Props) {
                         data: {
                             ...values, search, category
                         }, 
-                        prevCategoryId: typeof(initialPart.data.category) === 'string' ?
-                            initialPart.data.category :
-                            initialPart.data.category['@ref'].id,
+                        prevCategoryId,
                         prevCategoryParts: initialCategoryParts?.map(p => p['@ref'].id)
                     }
                 })
-                // TODO: Update the 'partData' in sessionStorage with 
-                // Part returned from API call
+                try {
+                    const partData = sessionStorage.getItem('partData')
+                    if (partData) {
+                        const parsedPartData:{[id:string]: PopulatedPart} 
+                            = JSON.parse(partData)
+                        parsedPartData[id] = {
+                            ...values, search, category
+                        }
+                        sessionStorage.setItem('partData', JSON.stringify(
+                            parsedPartData
+                        ))
+
+                        const categoryData = sessionStorage.getItem('categoryData')
+                        const parsedCategoryData:CategoryBank 
+                            = JSON.parse(categoryData as string)
+                        
+                        if (prevCategoryId !== category) {
+                            if (prevCategoryId in parsedCategoryData) {
+                                const i = parsedCategoryData[prevCategoryId].
+                                    parts.findIndex((el) => (
+                                        el === initialPart.ref['@ref'].id
+                                    ))
+                                parsedCategoryData[prevCategoryId].parts.splice(i, 1)
+                            }
+                            if (category in parsedCategoryData) {
+                                parsedCategoryData[category].parts.push(
+                                    initialPart.ref['@ref'].id
+                                )
+                            }
+                            sessionStorage.setItem('categoryData', JSON.stringify(
+                                parsedCategoryData
+                            ))
+                        }
+                    }
+                } catch (e) {}
             }
 
             Router.push({
