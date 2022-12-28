@@ -78,6 +78,9 @@ export default function CategoryForm({initialCategory}:Props) {
                 } catch (e) {}
 
             } else {
+                const prevParentId = typeof(initialCategory.data.parent) === 'string' ?
+                    initialCategory.data.parent : 
+                    initialCategory.data.parent['@ref'].id 
                 await axios({
                     method: 'POST',
                     url: `/api/inventory/category/${initialCategory.ref['@ref'].id}/update`,
@@ -87,13 +90,35 @@ export default function CategoryForm({initialCategory}:Props) {
                         search
                     },
                     parentChildren: categoryBank[parentCategory].children,
-                    prevParentId: typeof(initialCategory.data.parent) === 'string' ?
-                        initialCategory.data.parent : 
-                        initialCategory.data.parent['@ref'].id
+                    prevParentId
                 }
                 })
-                // TODO: Update the 'categoryData' in the sessionStorage with
-                // Category returned from api call
+                try {
+                    const categoryData = sessionStorage.getItem('categoryData')
+                    const parsedCategoryData:CategoryBank = 
+                        JSON.parse(categoryData as string)
+                    if (parentCategory !== prevParentId) {
+                        if (prevParentId in parsedCategoryData) {
+                            const i = parsedCategoryData[prevParentId].
+                                children.findIndex((el) => (
+                                    el === initialCategory.ref['@ref'].id
+                                ))
+                            parsedCategoryData[prevParentId].children.splice(i, 1)
+                        }
+                        parsedCategoryData[parentCategory].children.push(
+                            initialCategory.ref['@ref'].id
+                        )
+                    }
+                    parsedCategoryData[initialCategory.ref['@ref'].id] = {
+                        ...parsedCategoryData[initialCategory.ref['@ref'].id],
+                        name: values.name,
+                        search, 
+                        parent: parentCategory
+                    }
+                    sessionStorage.setItem('categoryData', JSON.stringify(
+                        parsedCategoryData
+                    ))
+                } catch (e) {}
             }
 
             Router.push({
