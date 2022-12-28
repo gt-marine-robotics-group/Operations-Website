@@ -209,17 +209,45 @@ export default function PartForm({initialPart, initialCategoryParts}:Props) {
         if (!initialPart) return
         setSubmitting(true)
         try {
+            const categoryId = typeof(initialPart.data.category) === 'string' ?
+                initialPart.data.category :
+                initialPart.data.category['@ref'].id
             await axios({
                 method: 'POST',
                 url: `/api/inventory/part/${initialPart.ref['@ref'].id}/delete`,
                 data: {
-                    categoryId: typeof(initialPart.data.category) === 'string' ?
-                        initialPart.data.category :
-                        initialPart.data.category['@ref'].id,
+                    categoryId,
                     categoryParts: initialCategoryParts?.map(p => p['@ref'].id)
                 }
             })
-            // TODO: Update the 'partData' in sessionStorage
+            try {
+                const partData = sessionStorage.getItem('partData')
+                if (partData) {
+                    const parsedPartData:{[id:string]: PopulatedPart} 
+                        = JSON.parse(partData)
+                    if (initialPart.ref['@ref'].id in parsedPartData) {
+                        delete parsedPartData[initialPart.ref['@ref'].id]
+                        sessionStorage.setItem('partData', JSON.stringify(
+                            parsedPartData
+                        ))
+                    }
+
+                    const categoryData = sessionStorage.getItem('categoryData')
+                    const parsedCategoryData:CategoryBank 
+                        = JSON.parse(categoryData as string)
+                    
+                    if (categoryId in parsedCategoryData) {
+                        const i = parsedCategoryData[categoryId].
+                            parts.findIndex((el) => (
+                                el === initialPart.ref['@ref'].id
+                            ))
+                        parsedCategoryData[categoryId].parts.splice(i, 1)
+                        sessionStorage.setItem('categoryData', JSON.stringify(
+                            parsedCategoryData
+                        ))
+                    }
+                }
+            } catch (e) {}
             Router.push({
                 pathname: '/inventory',
                 query: {
