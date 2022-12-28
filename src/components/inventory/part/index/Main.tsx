@@ -2,6 +2,9 @@ import { Box, CircularProgress, Container, Grid, Paper, Typography, useTheme } f
 import { useMemo } from "react";
 import { Cookie_User } from "../../../../database/interfaces/User";
 import { PopulatedPart, ProjectData } from "../usePart";
+import EditIcon from '@mui/icons-material/Edit';
+import { BluePrimaryIconButton } from "../../../misc/buttons";
+import Link from "next/link";
 
 interface Props {
     user: Cookie_User;
@@ -65,7 +68,14 @@ export default function Main({user, part, projects, error}:Props) {
     return (
         <Box mt={6}>
             <Container maxWidth="lg">
-                <Paper elevation={3}>
+                <Paper elevation={3} sx={{position: 'relative'}}>
+                    <Box position="absolute" top={8} right={8}>
+                        <Link href={window.location.pathname + '/update'}>
+                            <BluePrimaryIconButton>
+                                <EditIcon />
+                            </BluePrimaryIconButton>
+                        </Link>
+                    </Box>
                     <Box minHeight={500} mx={3} >
                         <Grid container spacing={3} justifyContent="center">
                             {part?.img && <Grid item>
