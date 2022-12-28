@@ -77,9 +77,6 @@ export default function CategoryForm({initialCategory}:Props) {
                 // Category returned from api call
             }
 
-            try {
-                sessionStorage.setItem('categorySelectData', '')
-            } catch (e) {}
             Router.push({
                 pathname: '/inventory',
                 query: {
@@ -116,9 +113,6 @@ export default function CategoryForm({initialCategory}:Props) {
             // TODO: Update the 'categoryData' in the sessionStorage with
             // Category returned from api call
 
-            try {
-                sessionStorage.setItem('categorySelectData', '')
-            } catch (e) {}
             Router.push({
                 pathname: '/inventory',
                 query: {
