@@ -9,6 +9,8 @@ import CategorySelect from "../category/CategorySelect";
 import { BluePrimaryButton, BluePrimaryOutlinedButton } from "../../misc/buttons";
 import Router from 'next/router'
 import { C_Ref } from "../../../database/interfaces/fauna";
+import { PopulatedPart } from './usePart'
+import { CategoryBank } from "../useInventory";
 
 interface Props {
     initialPart?: C_Part;
@@ -105,7 +107,7 @@ export default function PartForm({initialPart, initialCategoryParts}:Props) {
         setSubmitting(true)
         try {
             const search = values.name.split(' ').filter(v => v).map(v => v.toLowerCase())
-            let id = initialPart?.ref['@ref'].id
+            let id = initialPart?.ref['@ref'].id as string
             if (!initialPart) {
                 const {data} = await axios({
                     method: 'POST',
@@ -117,8 +119,31 @@ export default function PartForm({initialPart, initialCategoryParts}:Props) {
                     }}
                 })
                 id = data.ref['@ref'].id
-                // TODO: Update the 'partData' in sessionStorage with 
-                // Part returned from API call
+                try {
+                    const partData = sessionStorage.getItem('partData')
+                    if (partData) {
+                        const parsedPartData:{[id:string]: PopulatedPart} 
+                            = JSON.parse(partData)
+                        parsedPartData[id] = {
+                            ...values,
+                            search, category                  
+                        }
+                        sessionStorage.setItem('partData', JSON.stringify(
+                            parsedPartData
+                        ))
+
+                        const categoryData = sessionStorage.getItem('categoryData')
+                        const parsedCategoryData:CategoryBank 
+                            = JSON.parse(categoryData as string)
+
+                        if (category in parsedCategoryData) {
+                            parsedCategoryData[category].parts.push(id)
+                            sessionStorage.setItem('categoryData', JSON.stringify(
+                                parsedCategoryData
+                            ))
+                        }
+                    }
+                } catch (e) {}
             } else {
                 await axios({
                     method: 'POST',
