@@ -145,17 +145,34 @@ export default function CategoryForm({initialCategory}:Props) {
         }
         setSubmitting(true)
         try {
+            const parentCategoryId = typeof(initialCategory.data.parent) === 'string' ?
+                initialCategory.data.parent : 
+                initialCategory.data.parent['@ref'].id
             await axios({
                 method: 'POST',
                 url: `/api/inventory/category/${initialCategory.ref['@ref'].id}/delete`,
                 data: {
-                    parentCategoryId: typeof(initialCategory.data.parent) === 'string' ?
-                        initialCategory.data.parent : 
-                        initialCategory.data.parent['@ref'].id
+                    parentCategoryId
                 }
             })
-            // TODO: Update the 'categoryData' in the sessionStorage with
-            // Category returned from api call
+            try {
+                const categoryData = sessionStorage.getItem('categoryData')
+                const parsedCategoryData:CategoryBank = 
+                    JSON.parse(categoryData as string)
+                if (parentCategoryId in parsedCategoryData) {
+                    const i = parsedCategoryData[parentCategoryId].
+                        children.findIndex((el) => (
+                            el === initialCategory.ref['@ref'].id
+                        ))
+                    parsedCategoryData[parentCategoryId].children.splice(i, 1)
+                }
+                if (initialCategory.ref['@ref'].id in parsedCategoryData) {
+                    delete parsedCategoryData[initialCategory.ref['@ref'].id]
+                }
+                sessionStorage.setItem('categoryData', JSON.stringify(
+                    parsedCategoryData
+                ))
+            } catch (e) {}
 
             Router.push({
                 pathname: '/inventory',
