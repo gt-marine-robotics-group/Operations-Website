@@ -14,9 +14,9 @@ export default verifyUser(async function CreateCategory(req:NextApiRequest, res:
             return res.status(403).json({msg: 'Permission to add category denied.'})
         }
 
-        await createCategory(req.body.data, req.body.parentChildren)
+        const id = await createCategory(req.body.data, req.body.parentChildren)
 
-        return res.status(200).json({msg: 'Success'})
+        return res.status(200).json({id})
     } catch (e) {
         console.log(e)
         return res.status(500).json({msg: 'Internal Server Error'})

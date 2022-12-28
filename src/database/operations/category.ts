@@ -183,20 +183,23 @@ export async function createCategory(data:CreateCategoryData,
         data.parent = q.Ref(q.Collection('categories'), data.parent)
     }
 
-    await client.query(
+    return await client.query(
         q.Let(
             {
                 childId: q.Select(['ref', 'id'], 
                     q.Create(q.Collection('categories'), {data}))
             },
-            q.If(
-                data.parent !== '/',
-                addChildInnerQuery(data.parent as Expr, 
-                    parentChildren, q.Var('childId')),
-                null
+            q.Do(
+                q.If(
+                    data.parent !== '/',
+                    addChildInnerQuery(data.parent as Expr, 
+                        parentChildren, q.Var('childId')),
+                    null
+                ),
+                q.Var('childId')
             )
         )
-    )
+    ) as string
 }
 
 interface UpdateCategoryInfoData {

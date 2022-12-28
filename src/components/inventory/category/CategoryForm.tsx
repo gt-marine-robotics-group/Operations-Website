@@ -9,6 +9,7 @@ import axios from 'axios'
 import Router from 'next/router'
 import { BluePrimaryButton, BluePrimaryOutlinedButton, BlueSecondaryButton } from "../../misc/buttons";
 import { C_Ref } from "../../../database/interfaces/fauna";
+import { CategoryBank } from "../useInventory";
 
 class Props {
     initialCategory?: C_Category;
@@ -43,7 +44,7 @@ export default function CategoryForm({initialCategory}:Props) {
         try {
             const search = values.name.split(' ').filter(v => v).map(v => v.toLowerCase())
             if (!initialCategory) {
-                await axios({
+                const {data} = await axios({
                     method: 'POST',
                     url: '/api/inventory/category/create',
                     data: {data: {
@@ -56,8 +57,26 @@ export default function CategoryForm({initialCategory}:Props) {
                     parentChildren: categoryBank[parentCategory].children
                 }
                 })
-                // TODO: Update the 'categoryData' in the sessionStorage with
-                // Category returned from api call
+                try {
+                    const categoryData = sessionStorage.getItem('categoryData')
+                    const parsedCategoryData:CategoryBank = 
+                        JSON.parse(categoryData as string)
+                    if (parentCategory in parsedCategoryData) {
+                        parsedCategoryData[parentCategory].children.push(data.id)
+                    }
+                    parsedCategoryData[data.id] = {
+                        name: values.name,
+                        search: values.name.split(' ')
+                            .filter(v => v).map(v => v.toLowerCase()),
+                        parent: parentCategory,
+                        children: [],
+                        parts: [],
+                        expanded: true
+                    }
+                    sessionStorage.setItem('categoryData', 
+                        JSON.stringify(parsedCategoryData))
+                } catch (e) {}
+
             } else {
                 await axios({
                     method: 'POST',
