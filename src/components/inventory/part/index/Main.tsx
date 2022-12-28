@@ -1,5 +1,5 @@
 import { Box, CircularProgress, Container, Grid, Paper, Typography, useTheme } from "@mui/material";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Cookie_User } from "../../../../database/interfaces/User";
 import { PopulatedPart, ProjectData } from "../usePart";
 import EditIcon from '@mui/icons-material/Edit';
@@ -16,6 +16,8 @@ interface Props {
 export default function Main({user, part, projects, error}:Props) {
 
     const theme = useTheme()
+
+    const [updateLink, setUpdateLink] = useState('')
 
     const categoryPath = useMemo(() => {
         if (!part) return ''
@@ -63,14 +65,16 @@ export default function Main({user, part, projects, error}:Props) {
         return projects.sort((a, b) => a.name.localeCompare(b.name))
      }, [projects])
 
-     console.log(projectTemplateRow)
+     useEffect(() => {
+        setUpdateLink(window.location.pathname + '/update')
+     }, [])
 
     return (
         <Box mt={6}>
             <Container maxWidth="lg">
                 <Paper elevation={3} sx={{position: 'relative'}}>
                     <Box position="absolute" top={8} right={8}>
-                        <Link href={window.location.pathname + '/update'}>
+                        <Link href={updateLink}>
                             <BluePrimaryIconButton>
                                 <EditIcon />
                             </BluePrimaryIconButton>
