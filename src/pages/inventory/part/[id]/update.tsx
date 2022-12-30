@@ -14,9 +14,6 @@ interface Props {
 
 export default function UpdatePart({part, categoryParts}:Props) {
 
-    console.log('part', part)
-    console.log('categoryParts', categoryParts)
-
     return (
         <>
             <Head>
