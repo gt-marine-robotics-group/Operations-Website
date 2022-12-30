@@ -62,7 +62,26 @@ export function includesPartModifiableRole(roles:string[]) {
     return false
 }
 
+export function includesAdminRole(roles:string[]) {
+    for (const role of roles) {
+        if (role === 'President' || role === 'Operations Officer') {
+            return true
+        }
+    }
+    return false
+}
+
 export async function getPartModifierUser(ctx:GetServerSidePropsContext) {
+    return await getUserWithPermission(ctx, includesPartModifiableRole)
+}
+
+export async function getAdminUser(ctx:GetServerSidePropsContext) {
+    return await getUserWithPermission(ctx, includesAdminRole)
+}
+
+type RoleCheck = (roles:string[]) => boolean
+async function getUserWithPermission(ctx:GetServerSidePropsContext, 
+    roleCheck:RoleCheck) {
 
     const {user, redirect} = await getUser(ctx)
 
@@ -70,7 +89,7 @@ export async function getPartModifierUser(ctx:GetServerSidePropsContext) {
         return {user, redirect}
     }
 
-    if (includesPartModifiableRole(user.roles)) {
+    if (roleCheck(user.roles)) {
         return {user, redirect: null}
     }
 
