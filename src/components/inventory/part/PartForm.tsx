@@ -11,6 +11,7 @@ import Router from 'next/router'
 import { C_Ref } from "../../../database/interfaces/fauna";
 import { PopulatedPart } from './usePart'
 import { CategoryBank } from "../useInventory";
+import { getSearchTerms } from "../../../utils/inventory";
 
 interface Props {
     initialPart?: C_Part;
@@ -106,7 +107,7 @@ export default function PartForm({initialPart, initialCategoryParts}:Props) {
         console.log(category)
         setSubmitting(true)
         try {
-            const search = values.name.split(' ').filter(v => v).map(v => v.toLowerCase())
+            const search = getSearchTerms(values.name)
             let id = initialPart?.ref['@ref'].id as string
             if (!initialPart) {
                 const {data} = await axios({

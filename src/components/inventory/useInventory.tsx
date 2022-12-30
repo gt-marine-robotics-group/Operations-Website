@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from 'axios'
+import { getSearchTerms } from "../../utils/inventory";
 
 export interface CategoryBank {
     [id:string]: {
@@ -94,8 +95,7 @@ export default function useInventory(search:string) {
                     catCopy[category[0]].children : []
                 catCopy[category[0]] = {
                     name: category[1], 
-                    search: (category[1] as string).split(' ')
-                        .filter(v => v).map(v => v.toLowerCase()),
+                    search: getSearchTerms(category[1]),
                     children: currChildren,
                     parts: [],
                     parent: parentId,
@@ -109,8 +109,7 @@ export default function useInventory(search:string) {
                 if (part[0] in parsedPartData) {}
                 pCopy[part[0]] = {
                     name: part[1],
-                    search: (part[1] as string).split(' ')
-                        .filter(v => v).map(v => v.toLowerCase()),
+                    search: getSearchTerms(part[1]),
                     category: '/'
                 }
             }
@@ -303,8 +302,7 @@ export default function useInventory(search:string) {
                 matches.part.push(part[0])
                 partCopy[part[0]] = {
                     name: part[1],
-                    search: (part[1] as string).split(' ')
-                        .filter(v => v).map(v => v.toLowerCase()),
+                    search: getSearchTerms(part[1]),
                     category: typeof(part[2]) === 'string' ? part[2] :
                         part[2]['@ref'].id
                 }
@@ -382,8 +380,7 @@ export default function useInventory(search:string) {
                 if (!(part[0] in partBank)) {
                     const info = {
                         name: part[1],
-                        search: (part[1] as string).split(' ')
-                            .filter(v => v).map(v => v.toLowerCase()),
+                        search: getSearchTerms(part[1]),
                         category: id
                     }
                     partBankCopy[part[0]] = info

@@ -10,6 +10,7 @@ import Router from 'next/router'
 import { BluePrimaryButton, BluePrimaryOutlinedButton, BlueSecondaryButton } from "../../misc/buttons";
 import { C_Ref } from "../../../database/interfaces/fauna";
 import { CategoryBank } from "../useInventory";
+import { getSearchTerms } from "../../../utils/inventory";
 
 class Props {
     initialCategory?: C_Category;
@@ -42,7 +43,7 @@ export default function CategoryForm({initialCategory}:Props) {
         actions:FormikHelpers<FormVals>) => {
         setSubmitting(true)
         try {
-            const search = values.name.split(' ').filter(v => v).map(v => v.toLowerCase())
+            const search = getSearchTerms(values.name)
             if (!initialCategory) {
                 const {data} = await axios({
                     method: 'POST',
@@ -66,8 +67,7 @@ export default function CategoryForm({initialCategory}:Props) {
                     }
                     parsedCategoryData[data.id] = {
                         name: values.name,
-                        search: values.name.split(' ')
-                            .filter(v => v).map(v => v.toLowerCase()),
+                        search: getSearchTerms(values.name),
                         parent: parentCategory,
                         children: [],
                         parts: [],
