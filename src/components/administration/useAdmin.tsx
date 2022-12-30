@@ -1,6 +1,19 @@
 import { useEffect, useState } from "react";
-import { Cookie_User } from "../../database/interfaces/User";
+import { Cookie_User, C_User } from "../../database/interfaces/User";
 import axios from 'axios'
+import { C_Ref } from "../../database/interfaces/fauna";
+
+interface UserResponseData {
+    after?: [C_Ref];
+    data: (C_User|null)[];
+}
+
+interface InitialUserData {
+    projects: {
+        data: [string, string][];
+    };
+    users: UserResponseData;
+}
 
 export default function useAdmin(localUser:Cookie_User) {
 
@@ -34,14 +47,39 @@ export default function useAdmin(localUser:Cookie_User) {
 
         try {
 
-            const {data} = await axios.get('/api/administration/user', {
+            const {data} = await axios.get<InitialUserData>('/api/administration/user', {
                 params: {
                     userId: localUser.id,
                 }
             })
 
-            console.log('data', data)
+            const resProjects = data.projects.data.map(project => (
+                {id: project[0], name: project[1]}
+            ))
 
+            const resUsers:Cookie_User[] = data.users.data.map(user => {
+                if (!user)  {
+                    return localUser
+                }
+                return {
+                    id: user.ref['@ref'].id,
+                    email: user.data.email,
+                    roles: user.data.roles
+                }
+            })
+
+            try {
+                sessionStorage.setItem('users', JSON.stringify(resUsers))
+                sessionStorage.setItem('projectIdAndNames', JSON.stringify(resProjects))
+                if (!data.users.after) {
+                    sessionStorage.setItem('noMoreUsersToLoad', 'true')
+                }
+            } catch (e) {}
+
+            setUsers(resUsers)
+            setProjects(resProjects)
+            setMoreToLoad(!data.users.after)
+            setLoading(false)
         } catch (e) {
             console.log(e)
         }
@@ -50,6 +88,8 @@ export default function useAdmin(localUser:Cookie_User) {
     useEffect(() => {
         loadInitialUsers()
     }, [])
+
+    console.log('users', users)
 
     return {users, projects, moreToLoad, loading}
 }
