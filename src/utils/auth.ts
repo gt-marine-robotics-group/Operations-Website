@@ -1,4 +1,4 @@
-import { GetServerSidePropsContext } from "next";
+import { GetServerSidePropsContext, NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { parseCookies } from 'nookies'
 import { Cookie_User } from "../database/interfaces/User";
 import jwt from 'jsonwebtoken'
@@ -23,6 +23,14 @@ async function getAuthToken(ctx:GetServerSidePropsContext) {
     return await getDecoded(auth) 
 }
 
+async function getAuthTokenFromApiHandler(req:NextApiRequest) {
+    const auth = req.cookies['user-auth']
+
+    if (!auth) return null
+
+    return await getDecoded(auth)
+}
+
 export async function mustNotBeAuthenticated(ctx:GetServerSidePropsContext) {
     const token = await getAuthToken(ctx)
 
@@ -42,6 +50,55 @@ export async function getUser(ctx:GetServerSidePropsContext) {
     }
 
     return {user: token, redirect: null}
+}
+
+export function includesPartModifiableRole(roles:string[]) {
+    for (const role of roles) {
+        if (role === 'President' || role === 'Operations Officer' || 
+            role.includes('Technical Lead')) {
+            return true
+        }
+    }
+    return false
+}
+
+export async function getPartModifierUser(ctx:GetServerSidePropsContext) {
+
+    const {user, redirect} = await getUser(ctx)
+
+    if (redirect) {
+        return {user, redirect}
+    }
+
+    if (includesPartModifiableRole(user.roles)) {
+        return {user, redirect: null}
+    }
+
+    return {user: null, redirect: {
+        props: {},
+        redirect: {destination: '/'}
+    }}
+}
+
+export function verifyUser(fn:NextApiHandler) {
+    return (req:NextApiRequest, res:NextApiResponse) => {
+        return new Promise<void>(resolve => {
+            getAuthTokenFromApiHandler(req).then(async (authToken) => {
+                if (!authToken) {
+                    res.status(403).json({msg: 'YOU CANNOT PASS'})
+                    return resolve()
+                }
+                if (req.method !== 'GET') {
+                    req.body.jwtUser = authToken
+                }
+                await fn(req, res)
+                return resolve()
+            }).catch(() => {
+                res.status(500).json({msg: 'Authentication processing error'})
+                return resolve()
+            })
+        })
+    }
 }
 
 export async function logout() {

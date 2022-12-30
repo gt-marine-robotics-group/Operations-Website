@@ -4,6 +4,8 @@ export interface Props {
     name: string;
     label?: string;
     type?: string;
+    multiline?: boolean;
+    rows?: number;
 }
 
 export const inputProps = {

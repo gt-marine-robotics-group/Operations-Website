@@ -1,20 +1,20 @@
 import { Box, Container, Paper, Typography } from "@mui/material";
-import LoginForm from "./LoginForm";
+import PartForm from "../PartForm";
 
 export default function Main() {
 
     return (
         <Box mt={3}>
             <Container maxWidth="sm">
-                <Paper sx={{borderRadius: 5}} elevation={5}>
+                <Paper elevation={3}>
                     <Box p={3}>
-                        <Box textAlign="center" mb={3}>
+                        <Box mb={2} textAlign="center">
                             <Typography variant="h4">
-                                Welcome
+                                Add Part
                             </Typography>
                         </Box>
-                        <Box my={3} maxWidth={400} mx="auto">
-                            <LoginForm />                        
+                        <Box maxWidth={400} mx="auto">
+                            <PartForm />
                         </Box>
                     </Box>
                 </Paper>

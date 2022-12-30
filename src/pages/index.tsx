@@ -3,6 +3,7 @@ import Head from "next/head";
 import MainHeader from "../components/nav/MainHeader";
 import { Cookie_User } from "../database/interfaces/User"
 import { getUser } from "../utils/auth"
+import Main from '../components/home/Main'
 
 interface Props {
 	user: Cookie_User;
@@ -10,18 +11,14 @@ interface Props {
 
 export default function Home({user}:Props) {
 
-	console.log(user)
-
 	return (
 		<>
 			<Head>
 				<title>MRG Operations Dashboard</title>
 			</Head>
 			<div className="root-header-only">
-				<MainHeader loggedIn={true} />
-				<div>
-					main section
-				</div>
+				<MainHeader loggedIn />
+				<Main user={user} />
 			</div>
 		</>
 	)
