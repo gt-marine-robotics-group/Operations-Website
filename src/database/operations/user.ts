@@ -30,3 +30,52 @@ export async function getUserFromEmail(email:string) {
         )
     ) as S_User
 }
+
+export async function getInitialUserList(localUserId:string) {
+
+    const roleTerms = ['President', 'Operations Officer', 'Treasurer',
+        'Software Technical Lead', 'Electrical Technical Lead', 
+        'Mechanical Technical Lead']
+
+    return await client.query(
+        q.Let(
+            {
+                projects: q.Paginate(q.Match(q.Index('all_projects_w_id_and_name')))
+            },
+            q.Let(
+                {
+                    userIds: q.Paginate(q.Union(
+                        q.Match(
+                            q.Index('users_by_roles'),
+                            q.Append(
+                                q.Map(q.Select('data', q.Var('projects')), q.Lambda(
+                                    'project',
+                                    q.Concat(
+                                        [q.Select(1, q.Var('project')), "Project Lead"],
+                                        " "
+                                    )
+                                )),
+                                roleTerms
+                            )
+                        ),
+                        q.Match(
+                            q.Index('all_users')
+                        )
+                    ), {size: 15}),
+                    projects: q.Var('projects')
+                },
+                {
+                    projects: q.Var('projects'),
+                    users: q.Map(q.Var('userIds'), q.Lambda(
+                        'ref',
+                        q.If(
+                            q.Equals(q.Select('id', q.Var('ref')), localUserId),
+                            null,
+                            q.Get(q.Var('ref'))
+                        )
+                    ))
+                }
+            )
+        )
+    )
+}

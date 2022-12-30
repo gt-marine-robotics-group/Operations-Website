@@ -3,6 +3,7 @@ import Head from "next/head";
 import MainHeader from "../components/nav/MainHeader";
 import { Cookie_User } from "../database/interfaces/User";
 import { getAdminUser } from "../utils/auth";
+import Main from '../components/administration/Main'
 
 interface Props {
     user: Cookie_User;
@@ -19,7 +20,7 @@ export default function Administration({user}:Props) {
             </Head> 
             <div className="root-header-only">
                 <MainHeader loggedIn />
-                <div>main secton</div>
+                <Main user={user} />
             </div>
         </>
     )
