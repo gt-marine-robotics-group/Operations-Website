@@ -18,7 +18,7 @@ interface InitialUserData {
 export default function useAdmin(localUser:Cookie_User) {
 
     const [projects, setProjects] = useState<{id:string,name:string}[]>([])
-    const [users, setUsers] = useState([localUser])
+    const [users, setUsers] = useState<Cookie_User[]>([])
     const [moreToLoad, setMoreToLoad] = useState(false)
     const [loading, setLoading] = useState(false)
 
