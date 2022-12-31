@@ -26,9 +26,9 @@ export default function LeadershipDisplay({leadership, setLeadership,
         const cols = 3
         const projectRows = Object.keys(leadership['Project Leads']).length + 1
         if (projectRows > 3) {
-            return {rows: projectRows + 1, columns: cols}
+            return {rows: projectRows, columns: cols}
         }
-        return {rows: 4, columns: cols}
+        return {rows: 3, columns: cols}
     }, [leadership])
 
     const [showEdits, setShowEdits] = useState<boolean[][]>([])
@@ -117,8 +117,7 @@ export default function LeadershipDisplay({leadership, setLeadership,
                                                 <b>{officer}</b> {(leadership[category] as any)[officer]?.email.split('@')[0] || 'None'}
                                             </Typography>
                                             <Box position="absolute" 
-                                                right={category === 'Project Leads' ? 
-                                                    40 : 0} 
+                                                right={0} 
                                                 top="50%"
                                                 sx={{transform: 'translateY(-50%)'}}
                                                 display={(showEdits[j] || [])[i] ? 'initial' : 'none'}>
@@ -127,25 +126,11 @@ export default function LeadershipDisplay({leadership, setLeadership,
                                                     <EditIcon /> 
                                                 </BluePrimaryIconButton>
                                             </Box>
-                                            {category === 'Project Leads' && <Box
-                                                position="absolute" right={0} top="50%"
-                                                sx={{transform: 'translateY(-50%)'}}
-                                                display={(showEdits[j] || [])[i] ? 
-                                                'initial' : 'none'}>
-                                                <RedPrimaryIconButton>
-                                                    <RemoveIcon />     
-                                                </RedPrimaryIconButton> 
-                                            </Box>}
                                         </Box>
                                     </Box>
                                 ))}
                             </React.Fragment>
                         ))}
-                        <Box gridRow={rows} gridColumn={columns}>
-                            <BlueSecondaryButton>
-                                Add Project
-                            </BlueSecondaryButton>
-                        </Box>
                     </>
                 </Box>
             </Paper>
