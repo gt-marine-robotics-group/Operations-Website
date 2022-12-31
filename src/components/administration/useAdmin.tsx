@@ -89,14 +89,8 @@ export default function useAdmin(localUser:Cookie_User) {
         loadInitialUsers()
     }, [])
 
-    // throw error if fail
-    // return the user with the role if a success + update users + sessionStorage
     const updateUserRoles = async (role:string, newUsername:string, 
-        prevUserId?:string) => {
-
-        console.log('role', role)
-        console.log('newUsername', newUsername)
-        console.log('prevUserId', prevUserId)
+        prevUserId:string) => {
 
         const newUserEmail = newUsername ? newUsername + '@gatech.edu' : ''
 
@@ -122,10 +116,6 @@ export default function useAdmin(localUser:Cookie_User) {
             throw new Error('Internal Client Error')
         }
 
-        console.log('prevUserUpdatedRoles', prevUserUpdatedRoles)
-        console.log('newUserId', newUserId)
-        console.log('newUserUpdatedRoles', newUserUpdatedRoles)
-
         try {
 
             const {data} = await axios<C_User|null>({
@@ -149,7 +139,7 @@ export default function useAdmin(localUser:Cookie_User) {
                     ...usersCopy[newUserIndex],
                     roles: newUserUpdatedRoles as unknown as string[]
                 }
-            } else if (data) {
+            } else if (data && newUsername) {
                 usersCopy.push({
                     id: data.ref['@ref'].id,
                     email: data.data.email,

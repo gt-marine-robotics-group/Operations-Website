@@ -27,6 +27,8 @@ export default function UsernameDialog({title, error, open, defaultUsername,
     }, [open, error])
 
     const dialogSubmit = () => {
+        if (!ref.current?.value) return
+
         setSubmitting(true)
         onSubmit(ref.current?.value || '')
     }

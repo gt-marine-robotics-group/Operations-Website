@@ -69,7 +69,6 @@ export default function LeadershipDisplay({leadership, setLeadership,
     }
 
     const onEditSubmit = async (username:string) => {
-        console.log('username', username)
         try {
             const user = await updateUserRoles(roleChangeInfo.title, username, 
                 (leadership[roleChangeInfo.path[0] as Category] as any)[roleChangeInfo.path[1]]?.id)
