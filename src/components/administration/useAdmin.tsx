@@ -37,10 +37,10 @@ export default function useAdmin(localUser:Cookie_User) {
             }
             
             const noMoreToLoad = sessionStorage.getItem('noMoreUsersToLoad')
-            const afterId = sessionStorage.getItem('afterId')
+            const afterId = sessionStorage.getItem('userAfterId')
 
             console.log('using session storage')
-            setAfterId(afterId)
+            setAfterId(afterId || '')
             setUsers(parsedSessionUsers)
             setProjects(parsedSessionProjects)
             setMoreToLoad(!noMoreToLoad)
@@ -77,7 +77,7 @@ export default function useAdmin(localUser:Cookie_User) {
                 if (!data.users.after) {
                     sessionStorage.setItem('noMoreUsersToLoad', 'true')
                 } else {
-                    sessionStorage.setItem('afterId', data.users.after[0]['@ref'].id)
+                    sessionStorage.setItem('userAfterId', data.users.after[0]['@ref'].id)
                 }
             } catch (e) {}
 
@@ -87,7 +87,7 @@ export default function useAdmin(localUser:Cookie_User) {
             }
             setUsers(resUsers)
             setProjects(resProjects)
-            setMoreToLoad(!data.users.after)
+            setMoreToLoad(Boolean(data.users.after))
             setLoading(false)
         } catch (e) {
             console.log(e)
