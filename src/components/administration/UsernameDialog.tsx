@@ -1,4 +1,4 @@
-import { Box, Dialog, DialogActions, DialogTitle, Grid, TextField, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, useMediaQuery, useTheme } from "@mui/material";
 import { useMemo, useRef, useState } from "react";
 import { BluePrimaryButton, BluePrimaryOutlinedButton } from "../misc/buttons";
 
@@ -38,8 +38,8 @@ export default function UsernameDialog({title, error, open, defaultUsername,
             <DialogTitle textAlign="center">
                 {title}
             </DialogTitle>
-            <DialogTitle>
-                <Box minWidth={largeScreen ? 550 : 0}>
+            <DialogContent>
+                <Box mt={3} minWidth={largeScreen ? 550 : 0}>
                     <Box maxWidth={400} mx="auto">
                         <TextField fullWidth defaultValue={defaultUsername}
                             inputRef={ref} label="GT Username" InputLabelProps={{
@@ -47,7 +47,7 @@ export default function UsernameDialog({title, error, open, defaultUsername,
                             }} error={Boolean(error)} helperText={error} />
                     </Box>
                 </Box>
-            </DialogTitle>
+            </DialogContent>
             <DialogActions>
                 <Grid container spacing={1} justifyContent="center">
                     <Grid item>
