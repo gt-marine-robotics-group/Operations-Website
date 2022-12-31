@@ -2,6 +2,7 @@ import { Box, CircularProgress, Container } from "@mui/material";
 import { useMemo, useState } from "react";
 import { Cookie_User } from "../../database/interfaces/User";
 import LeadershipDisplay from "./LeadershipDisplay";
+import TeamDisplay from "./TeamDisplay";
 import useAdmin from "./useAdmin";
 
 interface Props {
@@ -85,8 +86,9 @@ export default function Main({user}:Props) {
                             setLeadership={setLeadership}
                             updateUserRoles={updateUserRoles} />
                     </Box>
-                    <Box>
-                        team members
+                    <Box mt={3}>
+                        <TeamDisplay users={users} loading={loading}
+                            moreToLoad={moreToLoad} />
                     </Box>
                 </Box>}
             </Container>
