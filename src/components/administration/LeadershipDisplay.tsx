@@ -5,14 +5,16 @@ import { Leadership } from "./Main";
 import { BluePrimaryIconButton, BlueSecondaryButton, RedPrimaryIconButton } from '../misc/buttons'
 import EditIcon from '@mui/icons-material/Edit'
 import RemoveIcon from '@mui/icons-material/Remove';
+import UsernameDialog from './UsernameDialog';
 
 interface Props {
     leadership: Leadership;
     projects: {id:string; name:string;}[];
 }
 
-const categories:('Executive Officers'|'Technical Leads' | 'Project Leads')[]
-    = ['Executive Officers', 'Technical Leads', 'Project Leads']
+type Category = 'Executive Officers'| 'Technical Leads' | 'Project Leads'
+
+const categories:Category[] = ['Executive Officers', 'Technical Leads', 'Project Leads']
 
 export default function LeadershipDisplay({leadership, projects}:Props) {
 
@@ -26,6 +28,11 @@ export default function LeadershipDisplay({leadership, projects}:Props) {
     }, [leadership])
 
     const [showEdits, setShowEdits] = useState<boolean[][]>([])
+
+    const [roleChangeInfo, setRoleChangeInfo] = useState({
+        path: ['', ''] as string[],
+        title: '',
+    })
 
     useMemo(() => {
         const edits = Array(rows - 1).fill(Array(columns).fill(false))
@@ -45,7 +52,19 @@ export default function LeadershipDisplay({leadership, projects}:Props) {
         setShowEdits(edits)
     }
 
-    console.log('showEdits', showEdits)
+    const editRole = (category:Category, officer:string) => {
+        const title = category === 'Executive Officers' ? 
+            officer :
+            officer + ' ' + category.substring(0, category.length - 1)
+        setRoleChangeInfo({
+            path: [category, officer],
+            title
+        })
+    }
+
+    const onEditSubmit = (username:string) => {
+        console.log('username', username)
+    }
 
     return (
         <Box>
@@ -75,7 +94,8 @@ export default function LeadershipDisplay({leadership, projects}:Props) {
                                                 top="50%"
                                                 sx={{transform: 'translateY(-50%)'}}
                                                 display={(showEdits[j] || [])[i] ? 'initial' : 'none'}>
-                                                <BluePrimaryIconButton >
+                                                <BluePrimaryIconButton
+                                                    onClick={() => editRole(category, officer)} >
                                                     <EditIcon /> 
                                                 </BluePrimaryIconButton>
                                             </Box>
@@ -101,6 +121,11 @@ export default function LeadershipDisplay({leadership, projects}:Props) {
                     </>
                 </Box>
             </Paper>
+            <UsernameDialog title={roleChangeInfo.title} 
+                open={Boolean(roleChangeInfo.title)} 
+                defaultUsername={(leadership[roleChangeInfo.path[0] as Category] as any || {})[roleChangeInfo.path[1]]?.email.split('@')[0]}
+                onSubmit={onEditSubmit}
+                onClose={() => setRoleChangeInfo({path: ['',''], title: ''})} />
         </Box>
     )
 }
