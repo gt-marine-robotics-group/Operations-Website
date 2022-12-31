@@ -81,7 +81,7 @@ export default function Main({user}:Props) {
                     <CircularProgress />
                 </Box> : <Box>
                     <Box>
-                        <LeadershipDisplay leadership={leadership} />
+                        <LeadershipDisplay leadership={leadership} projects={projects} />
                     </Box>
                     <Box>
                         team members
