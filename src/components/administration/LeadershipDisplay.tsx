@@ -32,6 +32,7 @@ export default function LeadershipDisplay({leadership, projects}:Props) {
     const [roleChangeInfo, setRoleChangeInfo] = useState({
         path: ['', ''] as string[],
         title: '',
+        error: ''
     })
 
     useMemo(() => {
@@ -58,7 +59,8 @@ export default function LeadershipDisplay({leadership, projects}:Props) {
             officer + ' ' + category.substring(0, category.length - 1)
         setRoleChangeInfo({
             path: [category, officer],
-            title
+            title,
+            error: ''
         })
     }
 
@@ -122,10 +124,11 @@ export default function LeadershipDisplay({leadership, projects}:Props) {
                 </Box>
             </Paper>
             <UsernameDialog title={roleChangeInfo.title} 
+                error={roleChangeInfo.error}
                 open={Boolean(roleChangeInfo.title)} 
                 defaultUsername={(leadership[roleChangeInfo.path[0] as Category] as any || {})[roleChangeInfo.path[1]]?.email.split('@')[0]}
                 onSubmit={onEditSubmit}
-                onClose={() => setRoleChangeInfo({path: ['',''], title: ''})} />
+                onClose={() => setRoleChangeInfo({...roleChangeInfo, title: ''})} />
         </Box>
     )
 }
