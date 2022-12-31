@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { Dispatch, SetStateAction, useState } from 'react'
 import { Box, Paper, Typography } from "@mui/material";
 import { useMemo } from "react";
 import { Leadership } from "./Main";
@@ -6,17 +6,20 @@ import { BluePrimaryIconButton, BlueSecondaryButton, RedPrimaryIconButton } from
 import EditIcon from '@mui/icons-material/Edit'
 import RemoveIcon from '@mui/icons-material/Remove';
 import UsernameDialog from './UsernameDialog';
+import { Cookie_User } from '../../database/interfaces/User';
 
 interface Props {
     leadership: Leadership;
-    projects: {id:string; name:string;}[];
+    setLeadership: Dispatch<SetStateAction<Leadership>>;
+    updateUserRoles: (role:string, newUsername:string, prevUserId:string) => void;
 }
 
 type Category = 'Executive Officers'| 'Technical Leads' | 'Project Leads'
 
 const categories:Category[] = ['Executive Officers', 'Technical Leads', 'Project Leads']
 
-export default function LeadershipDisplay({leadership, projects}:Props) {
+export default function LeadershipDisplay({leadership, setLeadership, 
+    updateUserRoles}:Props) {
 
     const {rows, columns} = useMemo(() => {
         const cols = 3
@@ -64,8 +67,25 @@ export default function LeadershipDisplay({leadership, projects}:Props) {
         })
     }
 
-    const onEditSubmit = (username:string) => {
+    const onEditSubmit = async (username:string) => {
         console.log('username', username)
+        try {
+            const user = await updateUserRoles(roleChangeInfo.title, username, 
+                (leadership[roleChangeInfo.path[0] as Category] as any)[roleChangeInfo.path[1]]?.id)
+            
+            return
+            
+            setLeadership({...leadership, [roleChangeInfo.path[0]]: {
+                ...leadership[roleChangeInfo.path[0] as Category],
+                [roleChangeInfo.path[1]]: user
+            }})
+            setRoleChangeInfo({...roleChangeInfo, title: ''})
+        } catch (e) {
+            console.log(e)
+            if (e instanceof Error) {
+                setRoleChangeInfo({...roleChangeInfo, error: e.message})
+            }
+        }
     }
 
     return (

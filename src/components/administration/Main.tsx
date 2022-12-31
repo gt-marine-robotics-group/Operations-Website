@@ -24,7 +24,7 @@ export interface Leadership {
 
 export default function Main({user}:Props) {
 
-    const [leadership, setLeaderShip] = useState<Leadership>({
+    const [leadership, setLeadership] = useState<Leadership>({
         'Executive Officers': {
             President: null,
             'Operations Officer': null,
@@ -38,7 +38,7 @@ export default function Main({user}:Props) {
         'Project Leads': {}
     })
 
-    const {users, projects, moreToLoad, loading} = useAdmin(user) 
+    const {users, projects, moreToLoad, loading, updateUserRoles} = useAdmin(user) 
 
     useMemo(() => {
         if (users.length === 0) return
@@ -69,7 +69,7 @@ export default function Main({user}:Props) {
             }
         })
 
-        setLeaderShip(leadershipCopy)
+        setLeadership(leadershipCopy)
     }, [users])
 
     console.log('leadership', leadership)
@@ -81,7 +81,9 @@ export default function Main({user}:Props) {
                     <CircularProgress />
                 </Box> : <Box>
                     <Box>
-                        <LeadershipDisplay leadership={leadership} projects={projects} />
+                        <LeadershipDisplay leadership={leadership}
+                            setLeadership={setLeadership}
+                            updateUserRoles={updateUserRoles} />
                     </Box>
                     <Box>
                         team members

@@ -89,7 +89,56 @@ export default function useAdmin(localUser:Cookie_User) {
         loadInitialUsers()
     }, [])
 
+    // throw error if fail
+    // return the user with the role if a success + update users + sessionStorage
+    const updateUserRoles = async (role:string, newUsername:string, 
+        prevUserId?:string) => {
+
+        console.log('role', role)
+        console.log('newUsername', newUsername)
+        console.log('prevUserId', prevUserId)
+
+        const newUserEmail = newUsername + '@gatech.edu'
+
+        let prevUserUpdatedRoles:string[]|undefined = undefined
+        let newUserId:string|undefined = undefined
+        let newUserUpdatedRoles:string[]|undefined = undefined
+
+        for (const user of users) {
+            if (user.id === prevUserId) {
+                prevUserUpdatedRoles = user.roles.filter(r => r !== role)
+            } else if (user.email === newUserEmail) {
+                newUserId = user.id
+                newUserUpdatedRoles = [...user.roles, role]
+            }
+        }
+
+        if (prevUserId && !prevUserUpdatedRoles) {
+            throw new Error('Internal Client Error')
+        }
+
+        console.log('prevUserUpdatedRoles', prevUserUpdatedRoles)
+        console.log('newUserId', newUserId)
+        console.log('newUserUpdatedRoles', newUserUpdatedRoles)
+
+        try {
+
+            const {data} = await axios({
+                method: 'POST',
+                url: '/api/administration/user/update-role',
+                data: {
+                    role, prevUserId, prevUserUpdatedRoles,
+                    newUserEmail, newUserId, newUserUpdatedRoles
+                }
+            })
+
+        } catch (e) {
+            console.log(e)
+            throw new Error('Internal Server Error')
+        }
+    }
+
     console.log('users', users)
 
-    return {users, projects, moreToLoad, loading}
+    return {users, projects, moreToLoad, loading, updateUserRoles}
 }
