@@ -98,20 +98,25 @@ export default function useAdmin(localUser:Cookie_User) {
         console.log('newUsername', newUsername)
         console.log('prevUserId', prevUserId)
 
-        const newUserEmail = newUsername + '@gatech.edu'
+        const newUserEmail = newUsername ? newUsername + '@gatech.edu' : ''
 
         let prevUserUpdatedRoles:string[]|undefined = undefined
+        let prevUserIndex:number|undefined = undefined
+
         let newUserId:string|undefined = undefined
         let newUserUpdatedRoles:string[]|undefined = undefined
+        let newUserIndex:number|undefined = undefined
 
-        for (const user of users) {
+        users.forEach((user, i) => {
             if (user.id === prevUserId) {
+                prevUserIndex = i
                 prevUserUpdatedRoles = user.roles.filter(r => r !== role)
             } else if (user.email === newUserEmail) {
+                newUserIndex = i
                 newUserId = user.id
                 newUserUpdatedRoles = [...user.roles, role]
             }
-        }
+        })
 
         if (prevUserId && !prevUserUpdatedRoles) {
             throw new Error('Internal Client Error')
@@ -123,7 +128,7 @@ export default function useAdmin(localUser:Cookie_User) {
 
         try {
 
-            const {data} = await axios({
+            const {data} = await axios<C_User|null>({
                 method: 'POST',
                 url: '/api/administration/user/update-role',
                 data: {
@@ -132,6 +137,36 @@ export default function useAdmin(localUser:Cookie_User) {
                 }
             })
 
+            const usersCopy = [...users]
+            if (prevUserIndex) {
+                usersCopy[prevUserIndex] = {
+                    ...usersCopy[prevUserIndex],
+                    roles: prevUserUpdatedRoles as unknown as string[]
+                }
+            }
+            if (newUserIndex) {
+                usersCopy[newUserIndex] = {
+                    ...usersCopy[newUserIndex],
+                    roles: newUserUpdatedRoles as unknown as string[]
+                }
+            } else if (data) {
+                usersCopy.push({
+                    id: data.ref['@ref'].id,
+                    email: data.data.email,
+                    roles: data.data.roles
+                })
+            }
+            try {
+                sessionStorage.setItem('users', JSON.stringify(usersCopy))
+            } catch (e) {
+                if (typeof(sessionStorage) !== 'undefined') {
+                    sessionStorage.setItem('users', '')
+                }
+            }
+
+            setUsers(usersCopy)
+
+            return data
         } catch (e) {
             console.log(e)
             throw new Error('Internal Server Error')

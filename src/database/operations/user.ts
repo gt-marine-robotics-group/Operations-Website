@@ -79,3 +79,82 @@ export async function getInitialUserList(localUserId:string) {
         )
     )
 }
+
+export async function moveRoleWithKnownUsers(prevUserId:string, 
+    prevUserUpdatedRoles:string[], newUserId:string, 
+    newUserUpdatedRoles:string[]) {
+
+    return await client.query(
+        q.Do(
+            q.Update(
+                q.Ref(q.Collection('users'), prevUserId), 
+                {data: {roles: prevUserUpdatedRoles}}
+            ),
+            q.Update(
+                q.Ref(q.Collection('users'), newUserId),
+                {data: {roles: newUserUpdatedRoles}}
+            )
+        )
+    ) as S_User
+}
+
+export async function moveRoleWithUnknownUser(role:string, prevUserId:string,
+    prevUserUpdatedRoles:string[], newUserEmail:string) {
+    
+    return await client.query(
+        q.If(
+            q.Exists(q.Match(q.Index('users_by_email'), newUserEmail)),
+            q.Let(
+                {
+                    newUser: q.Get(q.Match(q.Index('users_by_email'), newUserEmail))
+                },
+                q.Do(
+                    q.Update(
+                        q.Ref(q.Collection('users'), prevUserId), 
+                        {data: {roles: prevUserUpdatedRoles}}
+                    ),
+                    q.Update(
+                        q.Select('ref', q.Var('newUser')),
+                        {data: {
+                            roles: q.Append(role, 
+                                q.Select(['data', 'roles'], q.Var('newUser')))
+                        }}
+                    )
+                )
+            ),
+            null
+        )
+    ) as S_User | null
+}
+
+export async function updateUserRoles(userId:string, updatedRoles:string[]) {
+
+    return await client.query(
+        q.Update(
+            q.Ref(q.Collection('users'), userId),
+            {data: {roles: updatedRoles}}
+        )
+    ) as S_User
+}
+
+export async function addUserRoleWithEmail(email:string, role:string) {
+
+    return await client.query(
+        q.If(
+            q.Exists(q.Match(q.Index('users_by_email'), email)),
+            q.Let(
+                {
+                    user: q.Get(q.Match(q.Index('users_by_email'), email))
+                },
+                q.Update(
+                    q.Select('ref', q.Var('user')),
+                    {data: {
+                        roles: q.Append(role, 
+                            q.Select(['data', 'roles'], q.Var('user')))
+                    }}
+                )
+            ),
+            null
+        )
+    ) as S_User | null
+}

@@ -42,7 +42,7 @@ export default function UsernameDialog({title, error, open, defaultUsername,
                         <TextField fullWidth defaultValue={defaultUsername}
                             inputRef={ref} label="GT Username" InputLabelProps={{
                                 sx: {color: '#535040'}
-                            }} />
+                            }} error={Boolean(error)} helperText={error} />
                     </Box>
                 </Box>
             </DialogTitle>

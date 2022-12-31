@@ -6,12 +6,13 @@ import { BluePrimaryIconButton, BlueSecondaryButton, RedPrimaryIconButton } from
 import EditIcon from '@mui/icons-material/Edit'
 import RemoveIcon from '@mui/icons-material/Remove';
 import UsernameDialog from './UsernameDialog';
-import { Cookie_User } from '../../database/interfaces/User';
+import { Cookie_User, C_User } from '../../database/interfaces/User';
 
 interface Props {
     leadership: Leadership;
     setLeadership: Dispatch<SetStateAction<Leadership>>;
-    updateUserRoles: (role:string, newUsername:string, prevUserId:string) => void;
+    updateUserRoles: (role:string, newUsername:string, 
+        prevUserId:string) => Promise<C_User|null>;
 }
 
 type Category = 'Executive Officers'| 'Technical Leads' | 'Project Leads'
@@ -73,11 +74,17 @@ export default function LeadershipDisplay({leadership, setLeadership,
             const user = await updateUserRoles(roleChangeInfo.title, username, 
                 (leadership[roleChangeInfo.path[0] as Category] as any)[roleChangeInfo.path[1]]?.id)
             
-            return
+            if (!user) {
+                throw new Error('Username not found.')
+            }
             
             setLeadership({...leadership, [roleChangeInfo.path[0]]: {
                 ...leadership[roleChangeInfo.path[0] as Category],
-                [roleChangeInfo.path[1]]: user
+                [roleChangeInfo.path[1]]: {
+                    id: user.ref['@ref'].id,
+                    email: user.data.email,
+                    roles: user.data.roles
+                }
             }})
             setRoleChangeInfo({...roleChangeInfo, title: ''})
         } catch (e) {
