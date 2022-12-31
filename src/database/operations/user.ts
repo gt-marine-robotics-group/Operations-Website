@@ -158,3 +158,16 @@ export async function addUserRoleWithEmail(email:string, role:string) {
         )
     ) as S_User | null
 }
+
+export async function getUsersAfter(afterId:string) {
+
+    return await client.query(
+        q.Map(
+            q.Paginate(
+                q.Match(q.Index('all_users')),
+                {after: [q.Ref(q.Collection('users'), afterId)], size: 15}
+            ),
+            q.Lambda('ref', q.Get(q.Var('ref')))
+        )
+    )
+}

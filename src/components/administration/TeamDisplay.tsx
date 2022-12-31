@@ -8,9 +8,11 @@ interface Props {
     users: Cookie_User[];
     loading: boolean;
     moreToLoad: boolean;
+    loadMoreUsers: () => void;
 }
 
-export default function TeamDisplay({users, loading, moreToLoad}:Props) {
+export default function TeamDisplay({users, loading, moreToLoad, 
+    loadMoreUsers}:Props) {
 
     const [viewType, setViewType] = useState('currentMembers')
 
@@ -20,6 +22,8 @@ export default function TeamDisplay({users, loading, moreToLoad}:Props) {
         users.sort((a, b) => a.email.localeCompare(b.email))
     ), [users])
 
+    console.log('moreToLoad', moreToLoad)
+
     return (
         <Box>
             <Paper elevation={3}>
@@ -28,7 +32,7 @@ export default function TeamDisplay({users, loading, moreToLoad}:Props) {
                         <Grid container spacing={1} alignItems="center">
                             <Grid item>
                                 <Box minWidth={100}>
-                                    <Select value={viewType} fullWidth
+                                    <Select value={viewType} fullWidth disabled={loading}
                                         onChange={(e) => setViewType(e.target.value)}>
                                         <MenuItem value="currentMembers">
                                             Current
@@ -46,7 +50,7 @@ export default function TeamDisplay({users, loading, moreToLoad}:Props) {
                             </Grid>
                         </Grid>
                     </Box>
-                    <Box mb={3}>
+                    <Box mb={6}>
                         <Grid container spacing={3} alignItems="center">
                             <Grid item sm={4}>
                                 <PrimarySearchBar search={search} setSearch={setSearch} />
@@ -71,6 +75,12 @@ export default function TeamDisplay({users, loading, moreToLoad}:Props) {
                                     </Box>
                                 ))}
                             </Box>
+                            {moreToLoad && <Box mt={6} textAlign="center">
+                                <BluePrimaryButton disabled={loading}
+                                    onClick={() => loadMoreUsers()}>
+                                    Load More
+                                </BluePrimaryButton>
+                            </Box>}
                         </Box> :
                         <Box>
                             invites

@@ -39,7 +39,8 @@ export default function Main({user}:Props) {
         'Project Leads': {}
     })
 
-    const {users, projects, moreToLoad, loading, updateUserRoles} = useAdmin(user) 
+    const {users, projects, moreToLoad, loading, updateUserRoles,
+        loadMoreUsers} = useAdmin(user) 
 
     useMemo(() => {
         if (users.length === 0) return
@@ -88,7 +89,7 @@ export default function Main({user}:Props) {
                     </Box>
                     <Box mt={3}>
                         <TeamDisplay users={users} loading={loading}
-                            moreToLoad={moreToLoad} />
+                            moreToLoad={moreToLoad} loadMoreUsers={loadMoreUsers} />
                     </Box>
                 </Box>}
             </Container>

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getInitialUserList } from "../../../../database/operations/user";
+import { getInitialUserList, getUsersAfter } from "../../../../database/operations/user";
 import { verifyUser } from "../../../../utils/auth";
 
 export default verifyUser(async function Users(req:NextApiRequest, res:NextApiResponse) {
@@ -7,7 +7,8 @@ export default verifyUser(async function Users(req:NextApiRequest, res:NextApiRe
     try {
 
         if ('after' in req.query) {
-            return res.status(200).json({msg: 'the data'})
+            const data = await getUsersAfter(req.query.after as string)
+            return res.status(200).json(data)
         } else {
             const stuff = await getInitialUserList(req.query.userId as string)
             console.log('stuff', stuff)

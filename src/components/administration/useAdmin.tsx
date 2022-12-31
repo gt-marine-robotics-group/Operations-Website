@@ -19,6 +19,7 @@ export default function useAdmin(localUser:Cookie_User) {
 
     const [projects, setProjects] = useState<{id:string,name:string}[]>([])
     const [users, setUsers] = useState<Cookie_User[]>([])
+    const [afterId, setAfterId] = useState('')
     const [moreToLoad, setMoreToLoad] = useState(false)
     const [loading, setLoading] = useState(false)
 
@@ -36,8 +37,10 @@ export default function useAdmin(localUser:Cookie_User) {
             }
             
             const noMoreToLoad = sessionStorage.getItem('noMoreUsersToLoad')
+            const afterId = sessionStorage.getItem('afterId')
 
             console.log('using session storage')
+            setAfterId(afterId)
             setUsers(parsedSessionUsers)
             setProjects(parsedSessionProjects)
             setMoreToLoad(!noMoreToLoad)
@@ -73,9 +76,15 @@ export default function useAdmin(localUser:Cookie_User) {
                 sessionStorage.setItem('projectIdAndNames', JSON.stringify(resProjects))
                 if (!data.users.after) {
                     sessionStorage.setItem('noMoreUsersToLoad', 'true')
+                } else {
+                    sessionStorage.setItem('afterId', data.users.after[0]['@ref'].id)
                 }
             } catch (e) {}
 
+            console.log(data.users.after)
+            if (data.users.after) {
+                setAfterId(data.users.after[0]["@ref"].id)
+            }
             setUsers(resUsers)
             setProjects(resProjects)
             setMoreToLoad(!data.users.after)
@@ -163,7 +172,30 @@ export default function useAdmin(localUser:Cookie_User) {
         }
     }
 
+    const loadMoreUsers = async () => {
+        if (loading) return
+
+        setLoading(true)
+
+        try {
+
+            const {data} = await axios.get('/api/administration/user', {
+                params: {
+                    after: afterId
+                }
+            })
+
+            console.log('data', data)
+
+            setLoading(false)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    console.log('after', afterId)
     console.log('users', users)
 
-    return {users, projects, moreToLoad, loading, updateUserRoles}
+    return {users, projects, moreToLoad, loading, updateUserRoles,
+        loadMoreUsers}
 }
