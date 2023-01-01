@@ -1,7 +1,7 @@
 import { Box, Grid, MenuItem, Paper, Select, Typography } from "@mui/material";
 import { useMemo, useState } from "react";
 import { Cookie_User } from "../../database/interfaces/User";
-import { BluePrimaryButton } from "../misc/buttons";
+import { BluePrimaryButton, BluePrimaryOutlinedButton } from "../misc/buttons";
 import { PrimarySearchBar } from "../misc/searchBars";
 
 interface Props {
@@ -46,16 +46,19 @@ export default function TeamDisplay({users, loading, moreToLoad,
                         </Typography>
                     </Box>
                     <Box mb={6}>
-                        <Grid container spacing={3} alignItems="center">
-                            <Grid item sm={4}>
+                            <Box maxWidth={400}>
                                 <PrimarySearchBar search={search} setSearch={setSearch} />
-                            </Grid>
-                        </Grid>
+                            </Box>
+                            {/* <Grid item>
+                                <BluePrimaryButton>
+                                    Add Team Member
+                                </BluePrimaryButton>
+                            </Grid> */}
                     </Box>
                     <Box>
                         <Box display="grid" 
                             gridTemplateColumns="repeat(auto-fit, minmax(200px, 1fr))"
-                            gap={1}>
+                            gap={1} mb={6}>
                             {sortedUsers.map(user => (
                                 <Box key={user.id}
                                     display={searchedUser && searchedUser.id !== user.id 
@@ -66,12 +69,21 @@ export default function TeamDisplay({users, loading, moreToLoad,
                                 </Box>
                             ))}
                         </Box>
-                        {moreToLoad && <Box mt={6} textAlign="center">
-                            <BluePrimaryButton disabled={loading}
-                                onClick={() => loadMoreUsers()}>
-                                Load More
-                            </BluePrimaryButton>
-                        </Box>}
+                        <Grid container spacing={3}>
+                            {moreToLoad && <Grid item>
+                                <Box textAlign="center">
+                                    <BluePrimaryButton disabled={loading}
+                                        onClick={() => loadMoreUsers()}>
+                                        Load More
+                                    </BluePrimaryButton>
+                                </Box>
+                            </Grid>}
+                            <Grid item>
+                                <BluePrimaryOutlinedButton disabled={loading}>
+                                    Add Team Member
+                                </BluePrimaryOutlinedButton>
+                            </Grid>
+                        </Grid>
                     </Box>
                 </Box>
             </Paper>
