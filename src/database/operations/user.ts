@@ -180,3 +180,17 @@ export async function deleteUser(id:string) {
         )
     )
 }
+
+export async function addUser(email:string) {
+
+    return await client.query(
+        q.If(
+            existsUserWithEmailInnerQuery(email),
+            null,
+            q.Create(
+                q.Collection('users'), 
+                {data: {email, password: '', roles: []}}
+            )
+        )
+    ) as S_User | null
+}

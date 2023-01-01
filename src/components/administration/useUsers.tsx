@@ -308,8 +308,54 @@ export default function useUsers(localUser:Cookie_User) {
         }
     }
 
+    const addUser = async (username:string) => {
+        const email = username + '@gatech.edu'
+
+        if (users.find(user => user.email === email)) {
+            throw new Error('Team member already exists.')
+        }
+
+        try {
+
+            const {data} = await axios<C_User|null>({
+                method: 'POST',
+                url: '/api/administration/user/add',
+                data: {
+                    email
+                }
+            })
+
+            if (!data) {
+                throw new Error('Team member already exists')
+            }
+
+            const usersCopy = [...users]
+            const idsCopy = new Set(userIds)
+
+            idsCopy.add(data.ref['@ref'].id)
+            usersCopy.push({
+                id: data.ref['@ref'].id,
+                email: data.data.email,
+                roles: data.data.roles
+            })
+
+            try {
+                sessionStorage.setItem('users', JSON.stringify(usersCopy))
+            } catch (e) {}
+
+            setUserIds(idsCopy)
+            setUsers(usersCopy)
+        } catch (e) {
+            console.log(e)
+            if (e instanceof Error) {
+                throw e
+            }
+            throw new Error('Internal Server Error')
+        }
+    }
+
     console.log('users', users)
 
     return {users, projects, moreToLoad, loading, updateUserRoles,
-        loadMoreUsers, searchForUser, deleteUser}
+        loadMoreUsers, searchForUser, deleteUser, addUser}
 }

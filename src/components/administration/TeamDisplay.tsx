@@ -5,6 +5,7 @@ import { BluePrimaryButton, BluePrimaryIconButton, BluePrimaryOutlinedButton, Re
 import { PrimarySearchBar } from "../misc/searchBars";
 import RemoveIcon from '@mui/icons-material/Remove'
 import { ConfirmationDialog } from "../misc/dialogs";
+import UsernameDialog from "./UsernameDialog";
 
 interface Props {
     users: Cookie_User[];
@@ -13,10 +14,11 @@ interface Props {
     loadMoreUsers: () => void;
     searchForUser: (username:string) => Promise<Cookie_User|null>;
     deleteUser: (id:string) => Promise<void>;
+    addUser: (username:string) => Promise<void>;
 }
 
 export default function TeamDisplay({users, loading, moreToLoad, 
-    loadMoreUsers, searchForUser, deleteUser}:Props) {
+    loadMoreUsers, searchForUser, deleteUser, addUser}:Props) {
 
     const [search, setSearch] = useState('')
     const [searchedUser, setSearchedUser] = useState<Cookie_User|null>(null)
@@ -24,6 +26,11 @@ export default function TeamDisplay({users, loading, moreToLoad,
     const [showDelete, setShowDelete] = useState<{[id:string]: boolean}>({})
     const [confirmationMsg, setConfirmationMsg] = useState('')
     const [deleteId, setDeleteId] = useState('')
+
+    const [addUserInfo, setAddUserInfo] = useState({
+        error: '',
+        title: ''
+    })
 
     const sortedUsers = useMemo(() => (
         users.sort((a, b) => a.email.localeCompare(b.email))
@@ -70,6 +77,23 @@ export default function TeamDisplay({users, loading, moreToLoad,
 
     const deleteProceed = async () => {
         await deleteUser(deleteId)
+    }
+
+    const onAddUserClick = () => {
+        setAddUserInfo({error: '', title: 'Add Team Member'})
+    }
+
+    const addUserProceed = async (username:string) => {
+        if (!username) return
+        try {
+            await addUser(username)
+            setAddUserInfo({error: '', title: ''})
+        } catch (e) {
+            console.log(e)
+            if (e instanceof Error) {
+                setAddUserInfo({...addUserInfo, error: e.message})
+            }
+        }
     }
 
     return (
@@ -122,7 +146,8 @@ export default function TeamDisplay({users, loading, moreToLoad,
                                 </Box>
                             </Grid>}
                             <Grid item>
-                                <BluePrimaryOutlinedButton disabled={loading}>
+                                <BluePrimaryOutlinedButton disabled={loading}
+                                    onClick={() => onAddUserClick()}>
                                     Add Team Member
                                 </BluePrimaryOutlinedButton>
                             </Grid>
@@ -133,6 +158,10 @@ export default function TeamDisplay({users, loading, moreToLoad,
             <ConfirmationDialog open={Boolean(confirmationMsg)}
                 message={confirmationMsg} onClose={() => setConfirmationMsg('')}
                 onProceed={deleteProceed} />
+            <UsernameDialog title={addUserInfo.title} error={addUserInfo.error}
+                open={Boolean(addUserInfo.title)} defaultUsername="" 
+                onSubmit={addUserProceed} 
+                onClose={() => setAddUserInfo({...addUserInfo, title: ''})} />
         </Box>
     )
 }
