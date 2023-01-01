@@ -272,7 +272,7 @@ export default function useUsers(localUser:Cookie_User) {
 
             setUsers(usersCopy)
             setUserIds(idsCopy)
-
+            setLoading(false)
             return foundUser
         } catch (e) {
             console.log(e)
@@ -280,8 +280,36 @@ export default function useUsers(localUser:Cookie_User) {
         }
     }
 
+    const deleteUser = async (id:string) => {
+        if (loading) return
+
+        setLoading(true)
+
+        try {
+
+            await axios({
+                method: 'POST',
+                url: '/api/administration/user/delete',
+                data: {
+                    userId: id
+                }
+            })
+
+            const usersCopy = users.filter(user => user.id !== id)
+
+            try {
+                sessionStorage.setItem('users', JSON.stringify(usersCopy))
+            } catch (e) {}
+
+            setUsers(usersCopy)
+            setLoading(false)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     console.log('users', users)
 
     return {users, projects, moreToLoad, loading, updateUserRoles,
-        loadMoreUsers, searchForUser}
+        loadMoreUsers, searchForUser, deleteUser}
 }

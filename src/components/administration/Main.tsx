@@ -40,7 +40,7 @@ export default function Main({user}:Props) {
     })
 
     const {users, projects, moreToLoad, loading, updateUserRoles,
-        loadMoreUsers, searchForUser} = useUsers(user) 
+        loadMoreUsers, searchForUser, deleteUser} = useUsers(user) 
 
     useMemo(() => {
         if (users.length === 0) return
@@ -90,7 +90,8 @@ export default function Main({user}:Props) {
                     <Box mt={3}>
                         <TeamDisplay users={users} loading={loading}
                             moreToLoad={moreToLoad} loadMoreUsers={loadMoreUsers}
-                            searchForUser={searchForUser} />
+                            searchForUser={searchForUser}
+                            deleteUser={deleteUser} />
                     </Box>
                 </Box>}
             </Container>

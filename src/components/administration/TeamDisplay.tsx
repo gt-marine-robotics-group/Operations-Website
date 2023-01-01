@@ -4,6 +4,7 @@ import { Cookie_User } from "../../database/interfaces/User";
 import { BluePrimaryButton, BluePrimaryIconButton, BluePrimaryOutlinedButton, RedPrimaryIconButton } from "../misc/buttons";
 import { PrimarySearchBar } from "../misc/searchBars";
 import RemoveIcon from '@mui/icons-material/Remove'
+import { ConfirmationDialog } from "../misc/dialogs";
 
 interface Props {
     users: Cookie_User[];
@@ -11,15 +12,18 @@ interface Props {
     moreToLoad: boolean;
     loadMoreUsers: () => void;
     searchForUser: (username:string) => Promise<Cookie_User|null>;
+    deleteUser: (id:string) => Promise<void>;
 }
 
 export default function TeamDisplay({users, loading, moreToLoad, 
-    loadMoreUsers, searchForUser}:Props) {
+    loadMoreUsers, searchForUser, deleteUser}:Props) {
 
     const [search, setSearch] = useState('')
     const [searchedUser, setSearchedUser] = useState<Cookie_User|null>(null)
 
     const [showDelete, setShowDelete] = useState<{[id:string]: boolean}>({})
+    const [confirmationMsg, setConfirmationMsg] = useState('')
+    const [deleteId, setDeleteId] = useState('')
 
     const sortedUsers = useMemo(() => (
         users.sort((a, b) => a.email.localeCompare(b.email))
@@ -31,6 +35,12 @@ export default function TeamDisplay({users, loading, moreToLoad,
             map[u.id] = false
         })
         setShowDelete(map)
+    }, [users])
+
+    useMemo(() => {
+        if (confirmationMsg) {
+            setConfirmationMsg('')
+        }
     }, [users])
 
     const userSearch = async () => {
@@ -49,6 +59,17 @@ export default function TeamDisplay({users, loading, moreToLoad,
 
     const changeShowDelete = (id:string, value:boolean) => {
         setShowDelete({...showDelete, [id]: value})
+    }
+
+    const onDeleteClick = (user:Cookie_User) => {
+        if (user.roles.length > 0) return
+        setConfirmationMsg(`Are you sure you want to remove 
+            ${user.email.split('@')[0]}?`)
+        setDeleteId(user.id)
+    }
+
+    const deleteProceed = async () => {
+        await deleteUser(deleteId)
     }
 
     return (
@@ -83,7 +104,8 @@ export default function TeamDisplay({users, loading, moreToLoad,
                                     <Box position="absolute" right={0} top={0}
                                     display={showDelete[user.id] && user.roles.length === 0
                                         ? 'initial': 'none'}>
-                                        <RedPrimaryIconButton>
+                                        <RedPrimaryIconButton 
+                                            onClick={() => onDeleteClick(user)}>
                                             <RemoveIcon />
                                         </RedPrimaryIconButton>
                                     </Box>
@@ -108,6 +130,9 @@ export default function TeamDisplay({users, loading, moreToLoad,
                     </Box>
                 </Box>
             </Paper>
+            <ConfirmationDialog open={Boolean(confirmationMsg)}
+                message={confirmationMsg} onClose={() => setConfirmationMsg('')}
+                onProceed={deleteProceed} />
         </Box>
     )
 }

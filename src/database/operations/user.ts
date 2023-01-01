@@ -171,3 +171,12 @@ export async function getUsersAfter(afterId:string) {
         )
     )
 }
+
+export async function deleteUser(id:string) {
+
+    await client.query(
+        q.Delete(
+            q.Ref(q.Collection('users'), id)
+        )
+    )
+}
