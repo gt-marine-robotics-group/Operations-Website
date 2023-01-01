@@ -61,9 +61,9 @@ export default function TeamDisplay({users, loading, moreToLoad,
                         </Typography>
                     </Box>
                     <Box mb={6}>
-                            <Box maxWidth={400}>
-                                <PrimarySearchBar search={search} setSearch={setSearch} />
-                            </Box>
+                        <Box maxWidth={400}>
+                            <PrimarySearchBar search={search} setSearch={setSearch} />
+                        </Box>
                     </Box>
                     <Box>
                         <Box display="grid" 
@@ -81,7 +81,8 @@ export default function TeamDisplay({users, loading, moreToLoad,
                                         {user.email.split('@')[0]}
                                     </Typography>
                                     <Box position="absolute" right={0} top={0}
-                                    display={showDelete[user.id] ? 'initial': 'none'}>
+                                    display={showDelete[user.id] && user.roles.length === 0
+                                        ? 'initial': 'none'}>
                                         <RedPrimaryIconButton>
                                             <RemoveIcon />
                                         </RedPrimaryIconButton>
