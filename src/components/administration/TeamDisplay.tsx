@@ -24,7 +24,6 @@ export default function TeamDisplay({users, loading, moreToLoad,
 
     const userSearch = async () => {
         const user = await searchForUser(search)
-        console.log('found user', user)
         setSearchedUser(user)
     }
 
@@ -50,11 +49,6 @@ export default function TeamDisplay({users, loading, moreToLoad,
                             <Box maxWidth={400}>
                                 <PrimarySearchBar search={search} setSearch={setSearch} />
                             </Box>
-                            {/* <Grid item>
-                                <BluePrimaryButton>
-                                    Add Team Member
-                                </BluePrimaryButton>
-                            </Grid> */}
                     </Box>
                     <Box>
                         <Box display="grid" 
