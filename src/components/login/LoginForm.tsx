@@ -29,6 +29,13 @@ export default function LoginForm() {
             if ((e as AxiosError).response?.status === 409) {
                 actions.setFieldError((e as any).response?.data?.field,
                     (e as any).response?.data?.msg)
+            } else if ((e as AxiosError).response?.status === 401) {
+                Router.push({
+                    pathname: '/setup',
+                    query: {
+                        username: values.email.split('@')[0]
+                    }
+                })
             }
             actions.setSubmitting(false)
         }

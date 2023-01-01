@@ -20,6 +20,10 @@ export default async function Login(req:NextApiRequest, res:NextApiResponse) {
             return res.status(409).json({field: 'email', msg: 'Email not found.'})
         }
 
+        if (!user.data.password) {
+            return res.status(401).json({msg: 'Need to set up account.'})
+        }
+
         const isCorrectPassword = await new Promise<boolean>((resolve, reject) => {
             bcrypt.compare(password, user.data.password, (err, result) => {
                 if (err) reject(err)
