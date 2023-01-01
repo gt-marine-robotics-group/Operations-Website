@@ -23,12 +23,16 @@ export default function TeamDisplay({users, loading, moreToLoad,
         users.sort((a, b) => a.email.localeCompare(b.email))
     ), [users])
 
+    const userSearch = async () => {
+        
+    }
+
     useMemo(() => {
         if (!search && !searchedUser) return
         if (!search) {
             setSearchedUser(null)
         }
-        setSearchedUser(users.find(u => u.email.split('@')[0] === search) || null)
+        // setSearchedUser(users.find(u => u.email.split('@')[0] === search) || null)
     }, [search])
 
     console.log('moreToLoad', moreToLoad)

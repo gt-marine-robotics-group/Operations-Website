@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Cookie_User } from "../../database/interfaces/User";
 import LeadershipDisplay from "./LeadershipDisplay";
 import TeamDisplay from "./TeamDisplay";
-import useAdmin from "./useAdmin";
+import useUsers from "./useUsers";
 
 interface Props {
     user: Cookie_User;
@@ -40,7 +40,7 @@ export default function Main({user}:Props) {
     })
 
     const {users, projects, moreToLoad, loading, updateUserRoles,
-        loadMoreUsers} = useAdmin(user) 
+        loadMoreUsers} = useUsers(user) 
 
     useMemo(() => {
         if (users.length === 0) return

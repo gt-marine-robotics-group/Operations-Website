@@ -15,7 +15,7 @@ interface InitialUserData {
     users: UserResponseData;
 }
 
-export default function useAdmin(localUser:Cookie_User) {
+export default function useUsers(localUser:Cookie_User) {
 
     const [projects, setProjects] = useState<{id:string,name:string}[]>([])
     const [users, setUsers] = useState<Cookie_User[]>([])
