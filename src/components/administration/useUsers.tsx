@@ -19,6 +19,7 @@ export default function useUsers(localUser:Cookie_User) {
 
     const [projects, setProjects] = useState<{id:string,name:string}[]>([])
     const [users, setUsers] = useState<Cookie_User[]>([])
+    const [userIds, setUserIds] = useState<Set<string>>(new Set())
     const [afterId, setAfterId] = useState('')
     const [moreToLoad, setMoreToLoad] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -42,6 +43,7 @@ export default function useUsers(localUser:Cookie_User) {
             console.log('using session storage')
             setAfterId(afterId || '')
             setUsers(parsedSessionUsers)
+            setUserIds(new Set(parsedSessionUsers.map(u => u.id)))
             setProjects(parsedSessionProjects)
             setMoreToLoad(!noMoreToLoad)
             setLoading(false)
@@ -86,6 +88,7 @@ export default function useUsers(localUser:Cookie_User) {
                 setAfterId(data.users.after[0]["@ref"].id)
             }
             setUsers(resUsers)
+            setUserIds(new Set(resUsers.map(u => u.id)))
             setProjects(resProjects)
             setMoreToLoad(Boolean(data.users.after))
             setLoading(false)
@@ -137,6 +140,7 @@ export default function useUsers(localUser:Cookie_User) {
             })
 
             const usersCopy = [...users]
+            const idsCopy = new Set(userIds)
             if (prevUserIndex) {
                 usersCopy[prevUserIndex] = {
                     ...usersCopy[prevUserIndex],
@@ -154,6 +158,7 @@ export default function useUsers(localUser:Cookie_User) {
                     email: data.data.email,
                     roles: data.data.roles
                 })
+                idsCopy.add(data.ref['@ref'].id)
             }
             try {
                 sessionStorage.setItem('users', JSON.stringify(usersCopy))
@@ -164,6 +169,7 @@ export default function useUsers(localUser:Cookie_User) {
             }
 
             setUsers(usersCopy)
+            setUserIds(idsCopy)
 
             return data
         } catch (e) {
@@ -185,16 +191,23 @@ export default function useUsers(localUser:Cookie_User) {
                 }
             })
 
-            const resUsers:Cookie_User[] = [...users, ...data.data.map(user => {
-                if (!user)  {
-                    return localUser
+            const resUsers:Cookie_User[] = [...users]
+            const idsCopy = new Set(userIds)
+
+            data.data.forEach(user => {
+                if (!user) {
+                    return
                 }
-                return {
+                if (idsCopy.has(user.ref['@ref'].id)) {
+                    return
+                }
+                idsCopy.add(user.ref['@ref'].id)
+                resUsers.push({
                     id: user.ref['@ref'].id,
                     email: user.data.email,
                     roles: user.data.roles
-                }
-            })]
+                })
+            })
 
             try {
                 sessionStorage.setItem('users', JSON.stringify(resUsers))
@@ -210,6 +223,7 @@ export default function useUsers(localUser:Cookie_User) {
                 setAfterId(data.after[0]["@ref"].id)
             }
             setUsers(resUsers)
+            setUserIds(idsCopy)
             setMoreToLoad(Boolean(data.after))
             setLoading(false)
         } catch (e) {
@@ -220,11 +234,54 @@ export default function useUsers(localUser:Cookie_User) {
     const searchForUser = async (username:string) => {
         if (loading) return null
 
-        
+        const email = username + '@gatech.edu'
+
+        const user = users.find(u => u.email === email)
+
+        if (user) {
+            return user
+        }
+
+        try {
+
+            const {data} = await axios.get<C_User | null>('/api/administration/user', {
+                params: {
+                    email
+                }
+            })
+
+            if (!data) {
+                return null
+            }
+
+            const foundUser:Cookie_User = {
+                id: data.ref['@ref'].id,
+                email: data.data.email,
+                roles: data.data.roles
+            }
+
+            const usersCopy = [...users]
+            const idsCopy = new Set(userIds)
+
+            usersCopy.push(foundUser)
+            idsCopy.add(foundUser.id)
+
+            try {
+                sessionStorage.setItem('users', JSON.stringify(usersCopy))
+            } catch (e) {}
+
+            setUsers(usersCopy)
+            setUserIds(idsCopy)
+
+            return foundUser
+        } catch (e) {
+            console.log(e)
+            return null
+        }
     }
 
     console.log('users', users)
 
     return {users, projects, moreToLoad, loading, updateUserRoles,
-        loadMoreUsers}
+        loadMoreUsers, searchForUser}
 }

@@ -9,10 +9,11 @@ interface Props {
     loading: boolean;
     moreToLoad: boolean;
     loadMoreUsers: () => void;
+    searchForUser: (username:string) => Promise<Cookie_User|null>;
 }
 
 export default function TeamDisplay({users, loading, moreToLoad, 
-    loadMoreUsers}:Props) {
+    loadMoreUsers, searchForUser}:Props) {
 
     const [search, setSearch] = useState('')
     const [searchedUser, setSearchedUser] = useState<Cookie_User|null>(null)
@@ -22,7 +23,9 @@ export default function TeamDisplay({users, loading, moreToLoad,
     ), [users])
 
     const userSearch = async () => {
-
+        const user = await searchForUser(search)
+        console.log('found user', user)
+        setSearchedUser(user)
     }
 
     useMemo(() => {
@@ -31,10 +34,8 @@ export default function TeamDisplay({users, loading, moreToLoad,
         if (!search) {
             setSearchedUser(null)
         }
-        // setSearchedUser(users.find(u => u.email.split('@')[0] === search) || null)
+        userSearch()
     }, [search])
-
-    console.log('moreToLoad', moreToLoad)
 
     return (
         <Box>
