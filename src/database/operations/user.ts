@@ -194,3 +194,19 @@ export async function addUser(email:string) {
         )
     ) as S_User | null
 }
+
+export async function updateUserPassword(id:string, password:string) {
+
+    return await client.query(
+        q.If(
+            q.Equals(q.Select(['data', 0], q.Paginate(
+                q.Match(q.Index('users_by_id_w_password'), id)
+            )), ''),
+            q.Update(
+                q.Ref(q.Collection('users'), id),
+                {data: {password}}
+            ),
+            null
+        )
+    ) as S_User | null
+}
