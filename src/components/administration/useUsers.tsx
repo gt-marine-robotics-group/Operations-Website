@@ -217,6 +217,12 @@ export default function useUsers(localUser:Cookie_User) {
         }
     }
 
+    const searchForUser = async (username:string) => {
+        if (loading) return null
+
+        
+    }
+
     console.log('users', users)
 
     return {users, projects, moreToLoad, loading, updateUserRoles,
