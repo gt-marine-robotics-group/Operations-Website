@@ -179,21 +179,44 @@ export default function useAdmin(localUser:Cookie_User) {
 
         try {
 
-            const {data} = await axios.get('/api/administration/user', {
+            const {data} = await axios.get<UserResponseData>('/api/administration/user', {
                 params: {
                     after: afterId
                 }
             })
 
-            console.log('data', data)
+            const resUsers:Cookie_User[] = [...users, ...data.data.map(user => {
+                if (!user)  {
+                    return localUser
+                }
+                return {
+                    id: user.ref['@ref'].id,
+                    email: user.data.email,
+                    roles: user.data.roles
+                }
+            })]
 
+            try {
+                sessionStorage.setItem('users', JSON.stringify(resUsers))
+                if (!data.after) {
+                    sessionStorage.setItem('noMoreUsersToLoad', 'true')
+                    sessionStorage.setItem('userAfterId', '')
+                } else {
+                    sessionStorage.setItem('userAfterId', data.after[0]['@ref'].id)
+                }
+            } catch (e) {}
+
+            if (data.after) {
+                setAfterId(data.after[0]["@ref"].id)
+            }
+            setUsers(resUsers)
+            setMoreToLoad(Boolean(data.after))
             setLoading(false)
         } catch (e) {
             console.log(e)
         }
     }
 
-    console.log('after', afterId)
     console.log('users', users)
 
     return {users, projects, moreToLoad, loading, updateUserRoles,
