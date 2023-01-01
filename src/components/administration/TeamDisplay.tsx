@@ -17,10 +17,19 @@ export default function TeamDisplay({users, loading, moreToLoad,
     const [viewType, setViewType] = useState('currentMembers')
 
     const [search, setSearch] = useState('')
+    const [searchedUser, setSearchedUser] = useState<Cookie_User|null>(null)
 
     const sortedUsers = useMemo(() => (
         users.sort((a, b) => a.email.localeCompare(b.email))
     ), [users])
+
+    useMemo(() => {
+        if (!search && !searchedUser) return
+        if (!search) {
+            setSearchedUser(null)
+        }
+        setSearchedUser(users.find(u => u.email.split('@')[0] === search) || null)
+    }, [search])
 
     console.log('moreToLoad', moreToLoad)
 
@@ -68,7 +77,9 @@ export default function TeamDisplay({users, loading, moreToLoad,
                                 gridTemplateColumns="repeat(auto-fit, minmax(200px, 1fr))"
                                 gap={1}>
                                 {sortedUsers.map(user => (
-                                    <Box key={user.id}>
+                                    <Box key={user.id}
+                                        display={searchedUser && searchedUser.id !== user.id 
+                                        ? 'none' : 'initial'}>
                                         <Typography variant="body1" sx={{wordBreak: 'break-word'}}>
                                             {user.email.split('@')[0]}
                                         </Typography>
