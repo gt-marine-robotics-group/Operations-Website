@@ -1,8 +1,9 @@
 import { Box, Grid, MenuItem, Paper, Select, Typography } from "@mui/material";
 import { useMemo, useState } from "react";
 import { Cookie_User } from "../../database/interfaces/User";
-import { BluePrimaryButton, BluePrimaryOutlinedButton } from "../misc/buttons";
+import { BluePrimaryButton, BluePrimaryIconButton, BluePrimaryOutlinedButton, RedPrimaryIconButton } from "../misc/buttons";
 import { PrimarySearchBar } from "../misc/searchBars";
+import RemoveIcon from '@mui/icons-material/Remove'
 
 interface Props {
     users: Cookie_User[];
@@ -18,9 +19,19 @@ export default function TeamDisplay({users, loading, moreToLoad,
     const [search, setSearch] = useState('')
     const [searchedUser, setSearchedUser] = useState<Cookie_User|null>(null)
 
+    const [showDelete, setShowDelete] = useState<{[id:string]: boolean}>({})
+
     const sortedUsers = useMemo(() => (
         users.sort((a, b) => a.email.localeCompare(b.email))
     ), [users])
+
+    useMemo(() => {
+        const map:{[id:string]: boolean} = {}
+        users.forEach(u => {
+            map[u.id] = false
+        })
+        setShowDelete(map)
+    }, [users])
 
     const userSearch = async () => {
         const user = await searchForUser(search)
@@ -35,6 +46,10 @@ export default function TeamDisplay({users, loading, moreToLoad,
         }
         userSearch()
     }, [search])
+
+    const changeShowDelete = (id:string, value:boolean) => {
+        setShowDelete({...showDelete, [id]: value})
+    }
 
     return (
         <Box>
@@ -55,12 +70,22 @@ export default function TeamDisplay({users, loading, moreToLoad,
                             gridTemplateColumns="repeat(auto-fit, minmax(200px, 1fr))"
                             gap={1} mb={6}>
                             {sortedUsers.map(user => (
-                                <Box key={user.id}
+                                <Box key={user.id} position="relative"
                                     display={searchedUser && searchedUser.id !== user.id 
-                                    ? 'none' : 'initial'}>
+                                    ? 'none' : 'flex'} minHeight={40}
+                                    alignItems="center"
+                                    sx={{cursor: 'default'}}
+                                    onMouseEnter={() => changeShowDelete(user.id, true)}
+                                    onMouseLeave={() => changeShowDelete(user.id, false)}>
                                     <Typography variant="body1" sx={{wordBreak: 'break-word'}}>
                                         {user.email.split('@')[0]}
                                     </Typography>
+                                    <Box position="absolute" right={0} top={0}
+                                    display={showDelete[user.id] ? 'initial': 'none'}>
+                                        <RedPrimaryIconButton>
+                                            <RemoveIcon />
+                                        </RedPrimaryIconButton>
+                                    </Box>
                                 </Box>
                             ))}
                         </Box>
