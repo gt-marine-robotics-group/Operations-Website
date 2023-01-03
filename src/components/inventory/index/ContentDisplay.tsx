@@ -91,7 +91,9 @@ export default function ContentDisplay({categories, parts, loading,
 
     return (
         <Box>
-            {categories[category].children.map(id => (
+            {categories[category].children.sort((a, b) => (
+                categories[a].name.localeCompare(categories[b].name)
+            )).map(id => (
                 <Box my={3} key={id}>
                     <Paper elevation={3}>
                         <Box py={1}>
@@ -136,7 +138,9 @@ export default function ContentDisplay({categories, parts, loading,
                     </Paper>
                 </Box>
             ))}        
-            {categories[category].parts.map(id => (
+            {categories[category].parts.sort((a, b) => (
+                parts[a].name.localeCompare(parts[b].name)
+            )).map(id => (
                 <Box my={3} key={id}>
                     <PrimaryLink href="/inventory/part/[id]" 
                         as={`/inventory/part/${id}`} variant="h6">
