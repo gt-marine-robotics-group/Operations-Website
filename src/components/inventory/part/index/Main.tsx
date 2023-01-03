@@ -127,19 +127,19 @@ export default function Main({user, part, projects, error}:Props) {
                                         }} >
                                             <Box gridArea="available">
                                                 <Typography variant="body1">
-                                                    Available: {part.available}
+                                                    Available: {part.available} {part.units}
                                                 </Typography>
                                             </Box>
                                             <Box gridArea="on-the-way">
                                                 <Typography variant="body1">
-                                                    On the way: {part.onTheWay}
+                                                    On the way: {part.onTheWay} {part.units}
                                                 </Typography>
                                             </Box>
                                             {sortedProjects.map((project, i) => {
                                                 if (project.id in part.projects) {
                                                     return <Box key={i} gridArea={`project${i}`}>
                                                         <Typography variant="body1">
-                                                            {project.name}: {part.projects[project.id]}
+                                                            {project.name}: {part.projects[project.id]} {part.units}
                                                         </Typography>
                                                     </Box>
                                                 }
