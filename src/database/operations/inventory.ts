@@ -6,7 +6,8 @@ function getInitialInventoryInnerQuery(categoryId:Expr|string) {
     
     return q.Let(
         {
-            categories: q.Paginate(q.Match('all_categories_w_id_name_and_parent')),
+            categories: q.Paginate(q.Match('all_categories_w_id_name_and_parent'), 
+                {size: 1000}),
             parts: q.Paginate(q.Match(q.Index('parts_by_category_w_id_and_name'), 
                 categoryId))
         },
