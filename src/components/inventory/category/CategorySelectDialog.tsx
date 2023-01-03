@@ -120,7 +120,9 @@ function CategoryDisplay({id, selected, setSelected, bank, setBank,
                 {loadingChildren ? <CircularProgress /> : 
                     bank[id].children.filter(childId => (
                         childId !== blacklistCategoryId)
-                    ).map((childId, i) => (
+                    ).sort((a, b) => (
+                        bank[a]?.name.localeCompare(bank[b].name)
+                    )).map((childId, i) => (
                         <Box key={i}>
                             <CategoryDisplay id={childId} bank={bank}
                                 setBank={setBank} selected={selected}
@@ -157,7 +159,9 @@ export default function CategorySelectDialog({setSelected,
                 <Box minWidth={!fullScreenDialog ? 900: 0}>
                     {['/', ...bank['/'].children].filter(childId => (
                         childId !== blacklistCategoryId)
-                    ).map((id, i) => (
+                    ).sort((a, b) => (
+                        bank[a].name.localeCompare(bank[b].name)
+                    )).map((id, i) => (
                         <Box key={i}>
                             <CategoryDisplay id={id} bank={bank} setBank={setBank}
                                 setSelected={setDialogSelected} 
