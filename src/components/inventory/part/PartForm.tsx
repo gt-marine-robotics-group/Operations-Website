@@ -303,6 +303,7 @@ export default function PartForm({initialPart, initialCategoryParts}:Props) {
                         <Box my={3}>
                             <FormGroup>
                                 <Autocomplete freeSolo id="autocomplete-units"
+                                    autoSelect
                                     options={['m.', 'cm.', 'mm.', 'ft.', 'in.']}
                                     onChange={(e, val) => actions.setFieldValue('units', val)}
                                     renderInput={(params) => <TextField {...params} 
