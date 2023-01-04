@@ -43,6 +43,7 @@ export default function PartForm({initialPart, initialCategoryParts}:Props) {
             values.onTheWay = initialPart.data.onTheWay
             values.img = initialPart.data.img
             values.note = initialPart.data.note
+            values.units = initialPart.data.units
         }
         return values
     })
@@ -304,6 +305,7 @@ export default function PartForm({initialPart, initialCategoryParts}:Props) {
                             <FormGroup>
                                 <Autocomplete freeSolo id="autocomplete-units"
                                     autoSelect
+                                    defaultValue={initialPart?.data.units}
                                     options={['m.', 'cm.', 'mm.', 'ft.', 'in.']}
                                     onChange={(e, val) => actions.setFieldValue('units', val)}
                                     renderInput={(params) => <TextField {...params} 
