@@ -1,12 +1,14 @@
 import { Container, Grid } from "@mui/material";
 import Box from "@mui/material/Box";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Cookie_User } from "../../../database/interfaces/User";
-import { BluePrimaryButton, BlueSecondaryButton } from "../../misc/buttons";
+import { BlueSecondaryButton } from "../../misc/buttons";
 import { PrimarySearchBar } from "../../misc/searchBars";
 import useInventory from "../useInventory";
 import ContentDisplay from "./ContentDisplay";
+import { PrimarySnackbar } from '../../misc/snackbars'
+import { useRouter } from 'next/router'
 
 interface Props {
     user: Cookie_User;
@@ -15,6 +17,25 @@ interface Props {
 export default function Main({user}:Props) {
 
     const [search, setSearch] = useState('')
+
+    const router = useRouter() 
+    const [snackbarMsg, setSnackbarMsg] = useState({content: '', type: ''})
+
+    useEffect(() => {
+        if (!router.isReady) return
+
+        const {query} = router
+
+        if (query.partChange === 'delete') {
+            setSnackbarMsg({content: 'Part Deleted', type: 'success'})
+        } else if (query.categoryChange === 'add') {
+            setSnackbarMsg({content: 'Category Created', type: 'success'})
+        } else if (query.categoryChange === 'update') {
+            setSnackbarMsg({content: 'Category Updated', type: 'success'})
+        } else if (query.categoryChange === 'delete') {
+            setSnackbarMsg({content: 'Category Deleted', type: 'success'})
+        }
+    }, [router.query])
 
     const {categories, parts, loading, 
         expandCategory} = useInventory(search)
@@ -56,6 +77,7 @@ export default function Main({user}:Props) {
                         startOpen={Boolean(search)} isAdmin={isAdmin} />}
                 </Box>
             </Container>
+            <PrimarySnackbar msg={snackbarMsg} setMsg={setSnackbarMsg} />
         </Box>
     )
 }
