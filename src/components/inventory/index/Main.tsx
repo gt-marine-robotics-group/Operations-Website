@@ -1,4 +1,4 @@
-import { Container, Grid } from "@mui/material";
+import { CircularProgress, Container, Grid } from "@mui/material";
 import Box from "@mui/material/Box";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -71,10 +71,13 @@ export default function Main({user}:Props) {
                     </Grid>
                 </Box>}
                 <Box>
-                    {'/' in categories && <ContentDisplay categories={categories}
+                    {'/' in categories ? <ContentDisplay categories={categories}
                         parts={parts} loading={loading} 
                         expandCategory={expandCategory} category='/'
-                        startOpen={Boolean(search)} isAdmin={isAdmin} />}
+                        startOpen={Boolean(search)} isAdmin={isAdmin} />
+                    : <Box textAlign="center" mt={3}>
+                        <CircularProgress /> 
+                    </Box>}
                 </Box>
             </Container>
             <PrimarySnackbar msg={snackbarMsg} setMsg={setSnackbarMsg} />
