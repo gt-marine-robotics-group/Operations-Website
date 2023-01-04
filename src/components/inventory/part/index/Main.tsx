@@ -5,6 +5,7 @@ import { PopulatedPart, ProjectData } from "../usePart";
 import EditIcon from '@mui/icons-material/Edit';
 import { BluePrimaryIconButton } from "../../../misc/buttons";
 import Link from "next/link";
+import { includesAdminRole } from "../../../../utils/auth";
 
 interface Props {
     user: Cookie_User;
@@ -18,6 +19,10 @@ export default function Main({user, part, projects, error}:Props) {
     const theme = useTheme()
 
     const [updateLink, setUpdateLink] = useState('')
+
+    const isAdmin = useMemo(() => (
+        includesAdminRole(user.roles)
+    ), [user])
 
     const categoryPath = useMemo(() => {
         if (!part) return ''
@@ -73,13 +78,13 @@ export default function Main({user, part, projects, error}:Props) {
         <Box mt={6}>
             <Container maxWidth="lg">
                 <Paper elevation={3} sx={{position: 'relative'}}>
-                    <Box position="absolute" top={8} right={8}>
+                    {isAdmin && <Box position="absolute" top={8} right={8}>
                         <Link href={updateLink}>
                             <BluePrimaryIconButton>
                                 <EditIcon />
                             </BluePrimaryIconButton>
                         </Link>
-                    </Box>
+                    </Box>}
                     <Box minHeight={500} mx={3} >
                         <Grid container spacing={3} justifyContent="center">
                             {part?.img && <Grid item>
