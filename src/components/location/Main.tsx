@@ -1,4 +1,5 @@
-import { Box } from "@mui/material";
+import { Box, Container } from "@mui/material";
+import LocationViz from "./LocationViz";
 import useLocations from "./useLocations";
 
 export default function Main() {
@@ -7,7 +8,14 @@ export default function Main() {
 
     return (
         <Box>
-            main stuff
+            <Container maxWidth="lg">
+                <Box>
+                    stuff
+                </Box>
+                <Box textAlign="center">
+                    <LocationViz />
+                </Box>
+            </Container>
         </Box>
     )
 }
