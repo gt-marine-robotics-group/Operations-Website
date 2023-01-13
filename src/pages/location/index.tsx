@@ -2,6 +2,7 @@ import { GetServerSideProps } from "next";
 import Head from "next/head";
 import MainHeader from "../../components/nav/MainHeader";
 import { getAdminUser } from "../../utils/auth";
+import Main from '../../components/location/Main'
 
 export default function Location() {
 
@@ -14,7 +15,7 @@ export default function Location() {
             </Head> 
             <div className="root-header-only">
                 <MainHeader loggedIn />
-                <div>main section</div>
+                <Main />
             </div>
         </>
     )
