@@ -4,7 +4,7 @@ import { C_Location } from "../../database/interfaces/Location";
 import { drawBg } from "./LocationVizHelpers";
 
 interface Props {
-    locations: C_Location[];
+    locations: {[name:string]: C_Location[]};
     drawingEnabled?: boolean;
     editing?: string;
     selectedSquares?: [number, number][];

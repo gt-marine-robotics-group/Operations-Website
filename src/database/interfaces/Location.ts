@@ -3,6 +3,9 @@ import { C_Ref, S_Ref } from "./fauna";
 export const LOCATION_TYPES = [
     'Table' , 'Wall' , 'Shelf' , 'Bin' , 'Area'
 ]
+export const PLURAL_LOCATION_TYPES = [
+    'Tables', 'Walls', 'Shelves', 'Bins', 'Areas'
+]
 
 interface LocationData {
     letter: string;

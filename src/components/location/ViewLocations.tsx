@@ -1,11 +1,11 @@
 import { ArrowDropDown, ArrowRight} from "@mui/icons-material";
 import { Box, Grid, Paper, Typography, Checkbox } from "@mui/material";
 import { useState } from "react";
-import { C_Location, LOCATION_TYPES } from "../../database/interfaces/Location";
+import { C_Location, LOCATION_TYPES, PLURAL_LOCATION_TYPES } from "../../database/interfaces/Location";
 import { BluePrimaryIconButton } from "../misc/buttons";
 
 interface Props {
-    locations: C_Location[];
+    locations: {[name:string]: C_Location[]};
     loading: boolean;
     loadCategory: (name:string) => void;
 }
@@ -28,6 +28,7 @@ export default function ViewLocation({locations, loading,
         const copy = [...expandedCategories]
         copy[index] = !copy[index]
         setExpandedCategories(copy)
+        loadCategory(LOCATION_TYPES[index])
     }
 
     const checkCategory = (name:string) => {
@@ -54,7 +55,7 @@ export default function ViewLocation({locations, loading,
                                     </Grid>
                                     <Grid item>
                                         <Typography variant="h6">
-                                            {name}s
+                                            {PLURAL_LOCATION_TYPES[i]}
                                         </Typography>
                                     </Grid>
                                     <Grid item flex={1} />
