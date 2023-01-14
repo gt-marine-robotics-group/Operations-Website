@@ -7,7 +7,7 @@ import { BluePrimaryIconButton } from "../misc/buttons";
 interface Props {
     locations: {[name:string]: C_Location[]};
     loading: boolean;
-    loadCategory: (name:string) => void;
+    loadCategory: (name:string, show?:boolean) => void;
     viewingLocations: Set<string>;
     setViewingLocations: Dispatch<SetStateAction<Set<string>>>;
 }
@@ -34,8 +34,18 @@ export default function ViewLocation({locations, loading,
     }
 
     const checkCategory = (name:string) => {
-        setCheckedCategories({...checkedCategories, 
-            [name]: !checkedCategories[name]})
+        if (checkedCategories[name] && locations[name]) {
+            const copy = new Set(viewingLocations)
+            for (const loc of locations[name]) {
+                copy.delete(loc.ref['@ref'].id) 
+            }
+            setViewingLocations(copy)
+            setCheckedCategories({...checkedCategories, [name]: false})
+        } else {
+            loadCategory(name, true)
+            setCheckedCategories({...checkedCategories, 
+                [name]: true})
+        }
     }
 
     const checkLocation = (id:string) => {
