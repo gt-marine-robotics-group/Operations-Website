@@ -10,6 +10,7 @@ interface LocationData {
     squares: [number, number][];
     image: string;
     relationship: string;
+    direction?: 'left' | 'right' | 'down' | 'up';
 }
 
 interface S_LocationData extends LocationData {
