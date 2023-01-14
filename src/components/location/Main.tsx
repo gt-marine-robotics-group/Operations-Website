@@ -1,5 +1,7 @@
-import { Box, Container, Grid } from "@mui/material";
-import { useState } from "react";
+import { Box, Container, Grid, useMediaQuery } from "@mui/material";
+import { useMemo, useState } from "react";
+import { Cookie_User } from "../../database/interfaces/User";
+import { includesAdminRole } from "../../utils/auth";
 import { BluePrimaryButtonGroup } from "../misc/buttonGroups";
 import LocationViz from "./LocationViz";
 import useLocations from "./useLocations";
@@ -10,11 +12,19 @@ const options = [
     {text: 'Update', value: 'update'}
 ]
 
-export default function Main() {
+interface Props {
+    user: Cookie_User;
+}
+
+export default function Main({user}:Props) {
 
     const {locations} = useLocations()
 
     const [optionSelected, setOptionSelected] = useState('view')
+
+    const isAdmin = useMemo(() => (
+        includesAdminRole(user.roles)
+    ), [user])
 
     return (
         <Box mt={3}>
@@ -22,11 +32,11 @@ export default function Main() {
                 <Grid container spacing={3} justifyContent="space-between">
                     <Grid item>
                         <Box minWidth={420}>
-                            <Box textAlign="center">
+                            {isAdmin && <Box textAlign="center">
                                 <BluePrimaryButtonGroup selected={optionSelected}
                                     setSelected={setOptionSelected}
                                     options={options} />
-                            </Box>
+                            </Box>}
                         </Box>
                     </Grid>
                     <Grid item>

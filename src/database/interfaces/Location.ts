@@ -13,11 +13,11 @@ interface LocationData {
 }
 
 interface S_LocationData extends LocationData {
-    parent: S_Ref ;
+    parent: S_Ref | string;
 }
 
 interface C_LocationData extends LocationData {
-    parent: C_Ref;
+    parent: C_Ref | string;
 }
 
 export interface S_Location {

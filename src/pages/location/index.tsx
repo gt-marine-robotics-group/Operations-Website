@@ -3,8 +3,13 @@ import Head from "next/head";
 import MainHeader from "../../components/nav/MainHeader";
 import { getAdminUser } from "../../utils/auth";
 import Main from '../../components/location/Main'
+import { Cookie_User } from "../../database/interfaces/User";
 
-export default function Location() {
+interface Props {
+    user: Cookie_User;
+}
+
+export default function Location({user}:Props) {
 
     return (
         <>
@@ -15,7 +20,7 @@ export default function Location() {
             </Head> 
             <div className="root-header-only">
                 <MainHeader loggedIn />
-                <Main />
+                <Main user={user} />
             </div>
         </>
     )
