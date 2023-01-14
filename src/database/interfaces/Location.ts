@@ -7,8 +7,7 @@ export const LOCATION_TYPES = [
 interface LocationData {
     letter: string;
     type: 'Table' | 'Wall' | 'Shelf' | 'Bin' | 'Area';
-    x: number;
-    y: number;
+    squares: [number, number][];
     image: string;
     relationship: string;
 }

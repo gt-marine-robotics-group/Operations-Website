@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { C_Location } from "../../database/interfaces/Location";
 import { drawBg } from "./LocationVizHelpers";
 
@@ -7,10 +7,13 @@ interface Props {
     locations?: C_Location[];
     showing?: Set<string>;
     drawingEnabled?: boolean;
+    editing?: string;
+    selectedSquares?: [number, number][];
+    setSelectedSquares?: Dispatch<SetStateAction<[number, number][]>>;
 }
 
 export default function LocationViz({locations, showing, 
-    drawingEnabled}:Props) {
+    drawingEnabled, editing, selectedSquares, setSelectedSquares}:Props) {
 
     const ref = useRef<HTMLCanvasElement>(null)
 
