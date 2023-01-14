@@ -5,6 +5,7 @@ import { includesAdminRole } from "../../utils/auth";
 import { BluePrimaryButtonGroup } from "../misc/buttonGroups";
 import LocationViz from "./LocationViz";
 import useLocations from "./useLocations";
+import ViewLocation from "./ViewLocations";
 
 const options = [
     {text: 'View', value: 'view'},
@@ -18,7 +19,7 @@ interface Props {
 
 export default function Main({user}:Props) {
 
-    const {locations} = useLocations()
+    const {locations, loadCategory, loading} = useLocations()
 
     const [optionSelected, setOptionSelected] = useState('view')
 
@@ -32,11 +33,15 @@ export default function Main({user}:Props) {
                 <Grid container spacing={3} justifyContent="space-between">
                     <Grid item>
                         <Box minWidth={420}>
-                            {isAdmin && <Box textAlign="center">
+                            {isAdmin && <Box>
                                 <BluePrimaryButtonGroup selected={optionSelected}
                                     setSelected={setOptionSelected}
                                     options={options} />
                             </Box>}
+                            <Box display={optionSelected === 'view' ? 'initial': 'none'}>
+                                <ViewLocation locations={locations} loading={loading} 
+                                    loadCategory={loadCategory} />
+                            </Box>
                         </Box>
                     </Grid>
                     <Grid item>

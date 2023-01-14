@@ -16,8 +16,6 @@ export default function LocationViz({locations,
 
     const ref = useRef<HTMLCanvasElement>(null)
 
-    const squareHovering = useState({x: -1, y: -1})
-
     const draw = () => {
         if (!ref || !ref.current) return
         drawBg(ref.current.getContext('2d') as CanvasRenderingContext2D)
