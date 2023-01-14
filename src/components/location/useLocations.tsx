@@ -35,6 +35,12 @@ export default function useLocations() {
 
         const {data} = await axios.get<C_Location[]>(`/api/location/type/${name}`)
 
+        try {
+            sessionStorage.setItem('locations', JSON.stringify(
+                {...categoryLocs, [name]: data}
+            ))
+        } catch (e) {}
+
         setCategoryLocs({...categoryLocs, 
             [name]: data
         })
@@ -52,6 +58,8 @@ export default function useLocations() {
     return {
         loading,
         loadCategory,
-        locations: categoryLocs
+        locations: categoryLocs,
+        viewingLocations,
+        setViewingLocations
     }
 }

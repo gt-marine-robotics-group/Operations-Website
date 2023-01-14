@@ -1,6 +1,6 @@
 import { ArrowDropDown, ArrowRight} from "@mui/icons-material";
-import { Box, Grid, Paper, Typography, Checkbox } from "@mui/material";
-import { useState } from "react";
+import { Box, Grid, Paper, Typography, Checkbox, CircularProgress } from "@mui/material";
+import { Dispatch, SetStateAction, useState } from "react";
 import { C_Location, LOCATION_TYPES, PLURAL_LOCATION_TYPES } from "../../database/interfaces/Location";
 import { BluePrimaryIconButton } from "../misc/buttons";
 
@@ -8,10 +8,12 @@ interface Props {
     locations: {[name:string]: C_Location[]};
     loading: boolean;
     loadCategory: (name:string) => void;
+    viewingLocations: Set<string>;
+    setViewingLocations: Dispatch<SetStateAction<Set<string>>>;
 }
 
 export default function ViewLocation({locations, loading, 
-    loadCategory}:Props) {
+    loadCategory, viewingLocations, setViewingLocations}:Props) {
 
     const [expandedCategories, setExpandedCategories] = 
         useState(LOCATION_TYPES.map(() => false))
@@ -34,6 +36,17 @@ export default function ViewLocation({locations, loading,
     const checkCategory = (name:string) => {
         setCheckedCategories({...checkedCategories, 
             [name]: !checkedCategories[name]})
+    }
+
+    const checkLocation = (id:string) => {
+        const copy = new Set(viewingLocations)
+        if (!viewingLocations.has(id)) {
+            copy.add(id)
+            setViewingLocations(copy)
+        } else {
+            copy.delete(id)
+            setViewingLocations(copy)
+        }
     }
 
     return (
@@ -65,6 +78,27 @@ export default function ViewLocation({locations, loading,
                                             sx={{color: 'primary.main'}} />
                                     </Grid>
                                 </Grid>
+                            </Box>
+                            <Box pl={5}>
+                                {expandedCategories[i] && locations[name]?.map(loc => (
+                                    <Box key={loc.ref['@ref'].id} my={1}>
+                                        <Grid container justifyContent="space-between"
+                                            wrap="nowrap" alignItems="center">
+                                            <Grid item>
+                                                <Typography variant="body1">
+                                                    {loc.data.letter}
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item>
+                                                <Checkbox 
+                                                    checked={viewingLocations.has(loc.ref['@ref'].id)}
+                                                    onChange={() => checkLocation(loc.ref['@ref'].id)} 
+                                                    sx={{color: 'primary.main'}}
+                                                />
+                                            </Grid>
+                                        </Grid>
+                                    </Box>
+                                ))}
                             </Box>
                         </Box>
                     </Paper>

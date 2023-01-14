@@ -19,7 +19,8 @@ interface Props {
 
 export default function Main({user}:Props) {
 
-    const {locations, loadCategory, loading} = useLocations()
+    const {locations, loadCategory, loading, 
+        viewingLocations, setViewingLocations} = useLocations()
 
     const [optionSelected, setOptionSelected] = useState('view')
 
@@ -30,9 +31,9 @@ export default function Main({user}:Props) {
     return (
         <Box mt={3}>
             <Container maxWidth="xl">
-                <Grid container spacing={3} justifyContent="space-between">
+                <Grid container spacing={3} justifyContent="center">
                     <Grid item>
-                        <Box minWidth={420}>
+                        <Box minWidth={270}>
                             {isAdmin && <Box>
                                 <BluePrimaryButtonGroup selected={optionSelected}
                                     setSelected={setOptionSelected}
@@ -40,7 +41,9 @@ export default function Main({user}:Props) {
                             </Box>}
                             <Box display={optionSelected === 'view' ? 'initial': 'none'}>
                                 <ViewLocation locations={locations} loading={loading} 
-                                    loadCategory={loadCategory} />
+                                    loadCategory={loadCategory} 
+                                    viewingLocations={viewingLocations}
+                                    setViewingLocations={setViewingLocations} />
                             </Box>
                         </Box>
                     </Grid>
