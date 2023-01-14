@@ -50,7 +50,7 @@ export function drawBg(ctx:CanvasRenderingContext2D) {
                 continue
             }
 
-            if (squareAroundDoorWay(pxToI(rowPx), pxToI(colPx))) continue
+            // if (squareAroundDoorWay(pxToI(rowPx), pxToI(colPx))) continue
 
             ctx.fillStyle = BG_SQUARE_COLOR
             ctx.beginPath()

@@ -12,7 +12,7 @@ const options = [
 
 export default function Main() {
 
-    const {} = useLocations()
+    const {locations} = useLocations()
 
     const [optionSelected, setOptionSelected] = useState('view')
 
@@ -31,7 +31,7 @@ export default function Main() {
                     </Grid>
                     <Grid item>
                         <Box textAlign="center">
-                            <LocationViz />
+                            <LocationViz locations={locations} />
                         </Box>
                     </Grid>
                 </Grid>

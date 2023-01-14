@@ -4,15 +4,14 @@ import { C_Location } from "../../database/interfaces/Location";
 import { drawBg } from "./LocationVizHelpers";
 
 interface Props {
-    locations?: C_Location[];
-    showing?: Set<string>;
+    locations: C_Location[];
     drawingEnabled?: boolean;
     editing?: string;
     selectedSquares?: [number, number][];
     setSelectedSquares?: Dispatch<SetStateAction<[number, number][]>>;
 }
 
-export default function LocationViz({locations, showing, 
+export default function LocationViz({locations, 
     drawingEnabled, editing, selectedSquares, setSelectedSquares}:Props) {
 
     const ref = useRef<HTMLCanvasElement>(null)
