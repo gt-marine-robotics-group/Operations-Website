@@ -2,10 +2,17 @@ import { C_Ref, S_Ref } from "./fauna";
 
 export const LOCATION_TYPES = [
     'Table' , 'Wall' , 'Shelf' , 'Bin' , 'Area'
-]
+].sort()
+export const VIZ_PRIORITY_LOCATION_TYPES = {
+    'Bin': 0,
+    'Shelf': 1,
+    'Table': 2,
+    'Wall': 3,
+    'Area': 4
+}
 export const PLURAL_LOCATION_TYPES = [
     'Tables', 'Walls', 'Shelves', 'Bins', 'Areas'
-]
+].sort()
 
 interface LocationData {
     letter: string;

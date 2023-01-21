@@ -1,6 +1,9 @@
+import { C_Location } from "../../database/interfaces/Location"
 
 const BG_SQUARE_COLOR = '#c3c3d6'
 const BG_WALL_COLOR = '#666696'
+
+const WALL_COLOR = '#559bfb' // sky blue
 
 const doorWays = [
     {x: 12, y: 30, len: 6},
@@ -81,4 +84,33 @@ export function drawBg(ctx:CanvasRenderingContext2D) {
     ctx.fillRect(26 * 21 + 8, 18 * 26 + 8, 2, 26 * 12)
     ctx.fillRect(26 * 21 + 8, 18 * 26 + 8, 3 * 26, 2)
     ctx.fillRect(26 * 27 + 10, 18 * 26 + 8, 3 * 26, 2)
+}
+
+export function drawLocations(ctx:CanvasRenderingContext2D, 
+    locations:C_Location[]) {
+
+    locations.forEach(loc => {
+        switch (loc.data.type) {
+            case 'Wall':
+                drawWall(ctx, loc)
+                break
+        }
+    })
+}
+
+function drawWall(ctx:CanvasRenderingContext2D, loc:C_Location) {
+    ctx.fillStyle = WALL_COLOR
+    loc.data.squares.forEach(square => {
+        const x = square[0] * 26 + 10
+        const y = square[1] * 26 + 10
+        if (loc.data.direction === 'left') {
+            ctx.fillRect(x - 2, y - 2, 2, 26)
+        } else if (loc.data.direction === 'right') {
+            ctx.fillRect(x + 24, y, 2, 26)
+        } else if (loc.data.direction === 'down') {
+            ctx.fillRect(x, y + 24, 26, 2)
+        } else {
+            ctx.fillRect(x, y - 2, 26, 2)
+        }
+    })
 }

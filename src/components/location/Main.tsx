@@ -49,7 +49,8 @@ export default function Main({user}:Props) {
                     </Grid>
                     <Grid item>
                         <Box textAlign="center">
-                            <LocationViz locations={locations} />
+                            <LocationViz locations={locations}
+                                viewingLocations={viewingLocations} />
                         </Box>
                     </Grid>
                 </Grid>
