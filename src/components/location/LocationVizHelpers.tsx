@@ -1,9 +1,15 @@
-import { C_Location } from "../../database/interfaces/Location"
+import { C_Location, VIZ_PRIORITY_LOCATION_TYPES } from "../../database/interfaces/Location"
 
 const BG_SQUARE_COLOR = '#c3c3d6'
 const BG_WALL_COLOR = '#666696'
 
-const WALL_COLOR = '#559bfb' // sky blue
+const LOCATION_COLORS = {
+    'Wall': '#559bfb', // sky blue
+    'Table': '#35734f', // green
+    'Shelf': '',
+    'Bin': '',
+    'Area': ''
+}
 
 const doorWays = [
     {x: 12, y: 30, len: 6},
@@ -89,17 +95,37 @@ export function drawBg(ctx:CanvasRenderingContext2D) {
 export function drawLocations(ctx:CanvasRenderingContext2D, 
     locations:C_Location[]) {
 
+    const filledSquarePriorities:{[s:string]: number} = {}
+
     locations.forEach(loc => {
         switch (loc.data.type) {
             case 'Wall':
                 drawWall(ctx, loc)
                 break
+            default:
+                drawLocation(ctx, loc, filledSquarePriorities)
+                break
         }
     })
 }
 
+function drawLocation(ctx:CanvasRenderingContext2D, loc:C_Location,
+    filledSquarePriorities:{[s:string]: number})  {
+    ctx.fillStyle = LOCATION_COLORS[loc.data.type]
+    loc.data.squares.forEach(square => {
+        const x = square[0] * 26 + 10
+        const y = square[1] * 26 + 10
+        const strSquare = x.toString() + '_' + y.toString()
+        if (strSquare in filledSquarePriorities &&
+            filledSquarePriorities[strSquare] < 
+            VIZ_PRIORITY_LOCATION_TYPES[loc.data.type]) return
+        filledSquarePriorities[strSquare] = VIZ_PRIORITY_LOCATION_TYPES[loc.data.type]
+        ctx.fillRect(x, y, 24, 24)
+    })
+}
+
 function drawWall(ctx:CanvasRenderingContext2D, loc:C_Location) {
-    ctx.fillStyle = WALL_COLOR
+    ctx.fillStyle = LOCATION_COLORS['Wall']
     loc.data.squares.forEach(square => {
         const x = square[0] * 26 + 10
         const y = square[1] * 26 + 10
