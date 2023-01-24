@@ -7,7 +7,7 @@ interface Props {
     locations: {[name:string]: C_Location[]};
     viewingLocations: Set<string>;
     drawingEnabled?: boolean;
-    editing?: string;
+    editing?: boolean;
     selectedSquares?: [number, number][];
     setSelectedSquares?: Dispatch<SetStateAction<[number, number][]>>;
 }

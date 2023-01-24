@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getLocationsFromType } from "../../../../database/operations/location";
+import { verifyUser } from "../../../../utils/auth";
 
-export default async function LocationByName(req:NextApiRequest, res:NextApiResponse) {
+export default verifyUser(async function LocationByName(req:NextApiRequest, res:NextApiResponse) {
 
     try {
 
@@ -12,4 +13,4 @@ export default async function LocationByName(req:NextApiRequest, res:NextApiResp
         console.log(e)
         return res.status(500).json({msg: 'Internal Server Error'})
     }
-}
+})

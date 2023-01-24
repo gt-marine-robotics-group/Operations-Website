@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { C_Location } from "../../database/interfaces/Location"
+import { C_Location, LOCATION_TYPES } from "../../database/interfaces/Location"
 import axios from 'axios'
 
 export default function useLocations() {
@@ -51,6 +51,17 @@ export default function useLocations() {
             ]))
         }
         setLoading(false)
+    }
+
+    const loadAllCategories = async () => {
+        const cats = LOCATION_TYPES.filter(type => (
+            !(type in categoryLocs)
+        ))
+        if (cats.length === 0) return
+
+        setLoading(true)
+
+        
     }
 
     console.log('categoryLocs', categoryLocs)
