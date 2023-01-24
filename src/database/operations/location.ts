@@ -26,5 +26,5 @@ export async function getLocationsFromTypes(types:string[]) {
             ),
             q.Lambda('ref', q.Get(q.Var('ref')))
         )
-    )
+    ) as {data: S_Location[]}
 }

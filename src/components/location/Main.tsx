@@ -1,5 +1,5 @@
 import { Box, Container, Grid, useMediaQuery } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Cookie_User } from "../../database/interfaces/User";
 import { includesAdminRole } from "../../utils/auth";
 import { BluePrimaryButtonGroup } from "../misc/buttonGroups";
@@ -19,7 +19,7 @@ interface Props {
 
 export default function Main({user}:Props) {
 
-    const {locations, loadCategory, loading, 
+    const {locations, loadCategory, loadAllCategories, loading, 
         viewingLocations, setViewingLocations} = useLocations()
 
     const [optionSelected, setOptionSelected] = useState('view')
@@ -27,6 +27,18 @@ export default function Main({user}:Props) {
     const isAdmin = useMemo(() => (
         includesAdminRole(user.roles)
     ), [user])
+
+    useEffect(() => {
+        if (optionSelected === 'view') {
+            // set selected to nothing
+            return
+        }
+        if (optionSelected === 'add') {
+            // set selected to nothing
+            loadAllCategories()
+            return
+        }
+    }, [optionSelected])
 
     return (
         <Box mt={3}>

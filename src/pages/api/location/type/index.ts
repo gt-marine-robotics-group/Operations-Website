@@ -8,9 +8,9 @@ export default verifyUser(async function Locations(req:NextApiRequest, res:NextA
 
         console.log(req.query)
 
-        // const {data} = await getLocationsFromTypes(req.query.types)
+        const {data} = await getLocationsFromTypes(req.query['types[]'] as string[])
 
-        return res.status(200).json({data: 'data'})
+        return res.status(200).json({data})
     } catch (e) {
         console.log(e)
         return res.status(500).json({msg: 'Internal Server Error'})

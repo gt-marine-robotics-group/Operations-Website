@@ -61,7 +61,13 @@ export default function useLocations() {
 
         setLoading(true)
 
-        
+        const {data} = await axios.get('/api/location/type', {
+            params: {
+                types: cats
+            }
+        })
+
+        console.log('data', data.data)
     }
 
     console.log('categoryLocs', categoryLocs)
@@ -69,6 +75,7 @@ export default function useLocations() {
     return {
         loading,
         loadCategory,
+        loadAllCategories,
         locations: categoryLocs,
         viewingLocations,
         setViewingLocations
